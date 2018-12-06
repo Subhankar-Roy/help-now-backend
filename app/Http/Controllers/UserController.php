@@ -25,7 +25,7 @@ class UserController extends Controller{
             $validator = Validator::make($request->all(), [
                 'first_name'   => 'required|max:255',
                 'last_name'    => 'required|max:255',
-                'email'        => 'required|unique:users|max:255',
+                'email'        => 'required|email|unique:users|max:255',
                 'password'     => 'required|max:255',
                 'confpassword' => 'required|max:255',
                 'phone'        => 'required|max:255',
@@ -52,7 +52,7 @@ class UserController extends Controller{
                 $customerInfo->user_id = $createCustomer->id;
                 $customerInfo->first_name = trim($createCustomer->first_name);
                 $customerInfo->last_name = trim($createCustomer->last_name);
-                $customerInfo->phone = trim($createCustomer->phone);
+                $customerInfo->phone = (int)trim($createCustomer->phone);
                 //$customerInfo->street =(isset($createCustomer->street))? trim($createCustomer->street) : NULL;
                 //$customerInfo->po = (isset($createCustomer->po))? trim($createCustomer->po) : NULL;
                 //$customerInfo->city = (isset($createCustomer->city))? trim($createCustomer->city) : NULL;
