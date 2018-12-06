@@ -22,3 +22,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('ping', function() {
     return 'working....';
 });
+
+Route::post('create', 'UserController@storeCustomer');

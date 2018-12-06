@@ -16,7 +16,16 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'email'
+    ];
+
+    /**
+     * The attributes that can not be mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = [ 
+        'id','user_type','registration_type'
     ];
 
     /**
@@ -27,4 +36,11 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function getJWTIdentifier(){
+        return $this->getKey();
+    }
+    public function getJWTCustomClaims(){
+        return [];
+    }
 }
