@@ -49,11 +49,11 @@ class CustomerController extends Controller
 
             DB::beginTransaction();
             $createCustomer = new User();
-            $createCustomer->email                 = trim($request->email);
-            $createCustomer->email_verified_at     = now();
-            $createCustomer->user_type             = 3;
-            $createCustomer->registration_type     = 1;
-            $createCustomer->password              = bcrypt($request->password);
+            $createCustomer->email             = trim($request->email);
+            $createCustomer->email_verified_at = now();
+            $createCustomer->user_type         = 3;
+            $createCustomer->registration_type = 1;
+            $createCustomer->password          = bcrypt($request->password);
             if($createCustomer->save()){
                 $customerInfo = new PersonalInformation();
                 $customerInfo->user_id        = $createCustomer->id;
@@ -73,7 +73,6 @@ class CustomerController extends Controller
                     return response()->json([
                         'status' => true,
                         'response'  => "User Created Successfully."
-
                     ],201);
                 }else{
                     DB::rollback();
@@ -188,7 +187,6 @@ class CustomerController extends Controller
                 ]
             ],200);
         }catch(\Exception $e){
-            DB::rollback();
             return response()->json([
                 'status' => false,
                 'response' => $e->getMessage()
@@ -288,13 +286,7 @@ class CustomerController extends Controller
      * @return \Illuminate\Http\Response
     */
     public function saveProfessionalinfo(Request $request){
-        try{
-            if ($validator->fails()){
-                return response()->json([
-                    'status' => false,
-                    'response' => $validator->messages()
-                ],400);
-            }
+      /*  try{*/
             $user=$request->user();
             DB::beginTransaction();
             $saveProfessionalinfo=ProfessionalInformation::updateOrCreate(['user_id' => $user->id]);
@@ -338,13 +330,13 @@ class CustomerController extends Controller
                     'response' => "Something went worng! Try again!"
                 ],400);
             }
-        }catch(\Exception $e){
+        /*}catch(\Exception $e){
              DB::rollback();
             return response()->json([
                 'status' => false,
                 'response' => $e->getMessage(),
             ],$e->getCode());
-        }
+        }*/
     }
 
     /**
@@ -356,7 +348,7 @@ class CustomerController extends Controller
         try{
             $user=$request->user();
             $getprofessionalInfo=ProfessionalInformation::where('user_id',$user->id)->first();
-            if(count($getprofessionalInfo) >0){
+            if($getprofessionalInfo){
                 return response()->json([
                     'status'   => true,
                     'response' => [
@@ -388,7 +380,7 @@ class CustomerController extends Controller
     */
     public function savePaymentinfo(Request $request){
         try{
-            $validator = Validator::make($request->all(), [
+            /*$validator = Validator::make($request->all(), [
                 'street'       => 'required',
                 'city'         => 'required',
                 'zip'          => 'required|numeric'
@@ -399,14 +391,10 @@ class CustomerController extends Controller
                     'status'   => false, 
                     'response' => $validator->messages()
                 ],400);
-            }
-
+            }*/
             $user=$request->user();
             DB::beginTransaction();
             $savePaymentinfo=CustomerPaymentSettings::updateOrCreate(['user_id' => $user->id]);
-            if($request->has('name')){
-                $savePaymentinfo->name = trim($request->name);
-            }
             if($request->has('card_type')){
                 $savePaymentinfo->card_type = trim($request->card_type);
             }
@@ -434,6 +422,9 @@ class CustomerController extends Controller
             if($request->has('state')){
                 $savePaymentinfo->state = trim($request->state);
             }
+            if($request->has('zip')){
+                $savePaymentinfo->zip = trim($request->zip);
+            }
             if($request->has('paypal_account')){
                 $savePaymentinfo->paypal_account = trim($request->paypal_account);
             }
@@ -444,7 +435,7 @@ class CustomerController extends Controller
                 DB::commit();
                 return response()->json([
                     'status'    => true,
-                    'response'  => "Prayment information saved successfully."
+                    'response'  => "Payment information saved successfully."
                 ],200);
             }else{
                 DB::rollback();
@@ -471,7 +462,7 @@ class CustomerController extends Controller
         try{
             $user=$request->user();
             $getpaymentInfo=CustomerPaymentSettings::where('user_id',$user->id)->first();
-            if(count($getpaymentInfo) >0){
+            if($getpaymentInfo){
                 return response()->json([
                     'status'   => true,
                     'response' => [
@@ -503,6 +494,17 @@ class CustomerController extends Controller
     */
     public function createProperty(Request $request){
         try{
+            $validator = Validator::make($request->all(), [
+                'name'       => 'required',
+                'type'        => 'required',
+            ]);
+
+            if ($validator->fails()){
+                return response()->json([
+                    'status' => false,
+                    'response' => $validator->errors()
+                ],400);
+            }
             $user=$request->user();
             DB::beginTransaction();
             $saveProperty = new CustomerPropertyInformation();
@@ -515,7 +517,7 @@ class CustomerController extends Controller
             $saveProperty->state         = ($request->has('state')) ? trim($request->state) : NULL;
             $saveProperty->zip           = ($request->has('zip')) ? trim($request->zip) : NULL;
             $saveProperty->area          = ($request->has('area')) ? trim($request->area) : NULL;
-            $saveProperty->area_unit     = ($request->has('name')) ? trim($request->area_unit) : NULL;
+            $saveProperty->area_unit     = ($request->has('area_unit')) ? trim($request->area_unit) : NULL;
             if($saveProperty->save()){
                 DB::commit();
                 return response()->json([
@@ -525,7 +527,7 @@ class CustomerController extends Controller
             }else{
                 DB::rollback();
                 return response()->json([
-                    'status'   => false,
+                    'status' => false,
                     'response' => "Something went worng! Try again!"
                 ],400);
             }
@@ -547,8 +549,8 @@ class CustomerController extends Controller
         try{
             $user=$request->user();
             DB::beginTransaction();
-            $updateProperty=CustomerPropertyInformation::where('user_id',$request->userId)->where('id',$request->propertyId)->first();
-            if(count($updateProperty) >0){
+            $updateProperty=CustomerPropertyInformation::where('user_id',$user->id)->where('id',$request->property_id)->first();
+            if($updateProperty){
                 if($request->has('name')){
                     $updateProperty->name = trim($request->name);
                 }
@@ -612,11 +614,10 @@ class CustomerController extends Controller
     */
     public function deleteProperty(Request $request){
         try{
-            DB::beginTransaction();
-            $propertyId=trim($requst->property_id);
+            $propertyId=trim($request->property_id);
             $user=$request->user();
-
-            $property =CustomerPropertyInformation::where('id',$propertyId)->where('user_id',$user->id)->delete();
+            DB::beginTransaction();
+            $property =CustomerPropertyInformation::where('id',$propertyId)->where('user_id',$user->id)->DELETE();
             if($property){
                 DB::commit();
                 return response()->json([
@@ -671,9 +672,9 @@ class CustomerController extends Controller
     public function getPropertyinfo(Request $request){
         try{
             $user=$request->user();
-            $allproperty =CustomerPropertyInformation::where('id',$request->propertyid)->where('user_id',$user->id)->first();
+            $allproperty =CustomerPropertyInformation::where('id',$request->property_id)->where('user_id',$user->id)->first();
             return response()->json([
-                'status'   => false,
+                'status'   => true,
                 'response' =>[
                     'propertyinfo' => $allproperty,
                 ]
@@ -696,105 +697,175 @@ class CustomerController extends Controller
             $user=$request->user();
             if($request->has('notification_text')){
                 if(($request->notification_text)==0){
-                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','T')->delete();
+                     $updateNotificationTextsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','T')->delete();
                 }else{
-                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>1]);
-                    $updateServiceSettings->settings=>'T';
-                    $updateServiceSettings->save();
+                    $updateNotificationTextsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','T')->first();
+                    if(!$updateNotificationTextsettings){
+                        $updateNotificationTextsettings=new CustomerAccountSettings();
+                        $updateNotificationTextsettings->user_id=$user->id;
+                        $updateNotificationTextsettings->settings_name=1;
+                        $updateNotificationTextsettings->settings='T';
+                        $updateNotificationTextsettings->save();
+                    }
+                   
                 }
             }
             if($request->has('notification_email')){
                 if(($request->notification_email)==0){
-                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','E')->delete();
+                     $updateNotificationEmailsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','E')->delete();
                 }else{
-                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>1]);
-                    $updateServiceSettings->settings=>'E';
-                    $updateServiceSettings->save();
+                    $updateNotificationEmailsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','E')->first();
+                    if(!$updateNotificationEmailsettings){
+                        $updateNotificationEmailsettings=new CustomerAccountSettings();
+                        $updateNotificationEmailsettings->user_id=$user->id;
+                        $updateNotificationEmailsettings->settings_name=1;
+                        $updateNotificationEmailsettings->settings='E';
+                        $updateNotificationEmailsettings->save();
+                    }
                 }
             }
             if($request->has('notification_social')){
                 if(($request->notification_social)==0){
-                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','S')->delete();
+                     $updateNotificationSocialsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','S')->delete();
                 }else{
-                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>1]);
-                    $updateServiceSettings->settings=>'S';
-                    $updateServiceSettings->save();
+                    $updateNotificationSocialsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','S')->first();
+                    if(!$updateNotificationSocialsettings){
+                        $updateNotificationSocialsettings=new CustomerAccountSettings();
+                        $updateNotificationSocialsettings->user_id=$user->id;
+                        $updateNotificationSocialsettings->settings_name=1;
+                        $updateNotificationSocialsettings->settings='S';
+                        $updateNotificationSocialsettings->save();
+                    }
                 }
 
             }
             if($request->has('notification_phone')){
                 if(($request->notification_phone)==0){
-                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','P')->delete();
+                     $updateNotificationPhonesettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','P')->delete();
                 }else{
-                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>1]);
-                    $updateServiceSettings->settings=>'P';
-                    $updateServiceSettings->save();
+                    $updateNotificationPhonesettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','P')->first();
+                    if(!$updateNotificationPhonesettings){
+                        $updateNotificationPhonesettings=new CustomerAccountSettings();
+                        $updateNotificationPhonesettings->user_id=$user->id;
+                        $updateNotificationPhonesettings->settings_name=1;
+                        $updateNotificationPhonesettings->settings='P';
+                        $updateNotificationPhonesettings->save();
+                    }
                 }
             }
             if($request->has('specialoffer_text')){
                 if(($request->specialoffer_text)==0){
-                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','T')->delete();
+                     $updateSpecialOfferTextsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','T')->delete();
                 }else{
-                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>2]);
-                    $updateServiceSettings->settings=>'T';
-                    $updateServiceSettings->save();
+                    $updateSpecialOfferTextsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','T')->first();
+                    if(!$updateSpecialOfferTextsettings){
+                        $updateSpecialOfferTextsettings=new CustomerAccountSettings();
+                        $updateSpecialOfferTextsettings->user_id=$user->id;
+                        $updateSpecialOfferTextsettings->settings_name=2;
+                        $updateSpecialOfferTextsettings->settings='T';
+                        $updateSpecialOfferTextsettings->save();
+                    }
                 }
                 
             }
             if($request->has('specialoffer_email')){
                 if(($request->specialoffer_email)==0){
-                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','E')->delete();
+                     $updateSpecialOfferEmailsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','E')->delete();
                 }else{
-                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>2]);
-                    $updateServiceSettings->settings=>'E';
-                    $updateServiceSettings->save();
+                    $updateSpecialOfferEmailsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','E')->first();
+                    if(!$updateSpecialOfferEmailsettings){
+                        $updateSpecialOfferEmailsettings=new CustomerAccountSettings();
+                        $updateSpecialOfferEmailsettings->user_id=$user->id;
+                        $updateSpecialOfferEmailsettings->settings_name=2;
+                        $updateSpecialOfferEmailsettings->settings='E';
+                        $updateSpecialOfferEmailsettings->save();
+                    }
                 }
                 
             }
             if($request->has('specialoffer_social')){
                 if(($request->specialoffer_social)==0){
-                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','S')->delete();
+                     $updateSpecialOfferSocialsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','S')->delete();
                 }else{
-                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>2]);
-                    $updateServiceSettings->settings=>'S';
-                    $updateServiceSettings->save();
+                    $updateSpecialOfferSocialsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','S')->first();
+                    if(!$updateSpecialOfferSocialsettings){
+                        $updateSpecialOfferSocialsettings=new CustomerAccountSettings();
+                        $updateSpecialOfferSocialsettings->user_id=$user->id;
+                        $updateSpecialOfferSocialsettings->settings_name=2;
+                        $updateSpecialOfferSocialsettings->settings='S';
+                        $updateSpecialOfferSocialsettings->save();
+                    }
                 }
             }
             if($request->has('specialoffer_phone')){
                 if(($request->specialoffer_phone)==0){
-                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','P')->delete();
+                     $updateSpecialOfferPhonesettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','P')->delete();
                 }else{
-                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>2]);
-                    $updateServiceSettings->settings=>'P';
-                    $updateServiceSettings->save();
+                    $updateSpecialOfferPhonesettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','P')->first();
+                    if(!$updateSpecialOfferPhonesettings){
+                        $updateSpecialOfferPhonesettings=new CustomerAccountSettings();
+                        $updateSpecialOfferPhonesettings->user_id=$user->id;
+                        $updateSpecialOfferPhonesettings->settings_name=2;
+                        $updateSpecialOfferPhonesettings->settings='P';
+                        $updateSpecialOfferPhonesettings->save();
+                    }
                 }
             }
             if($request->has('privacy')){
-                $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>3]);
-                $updateServiceSettings->settings=>trim($request->privacy);
-                $updateServiceSettings->save();
+                $updatePrivacySettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',3)->first();
+                if(!$updatePrivacySettings){
+                    $updatePrivacySettings=new CustomerAccountSettings();
+                    $updatePrivacySettings->user_id=$user->id;
+                    $updatePrivacySettings->settings_name=3;
+                }
+                $updatePrivacySettings->settings= trim($request->privacy);
+                $updatePrivacySettings->save();
             }
             if($request->has('post')){
-                $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>4]);
-                $updateServiceSettings->settings=>trim($request->post);
-                $updateServiceSettings->save();
+                $updatePostSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',4)->first();
+                if(!$updatePostSettings){
+                    $updatePostSettings=new CustomerAccountSettings();
+                    $updatePostSettings->user_id=$user->id;
+                    $updatePostSettings->settings_name=4;
+                }
+                $updatePostSettings->settings= trim($request->post);
+                $updatePostSettings->save();
             }
             if($request->has('status')){
-                $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>5]);
-                $updateServiceSettings->settings =>trim($request->status);
-                $updateServiceSettings->save();
+                $updateStatusSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',5)->first();
+                if(!$updateStatusSettings){
+                    $updateStatusSettings=new CustomerAccountSettings();
+                    $updateStatusSettings->user_id=$user->id;
+                    $updateStatusSettings->settings_name=5;
+                }
+                $updateStatusSettings->settings = trim($request->status);
+                $updateStatusSettings->save();
             }
             if($request->has('service')){
-                $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>6]);
-                $updateServiceSettings->settings=>trim($request->service);
+                $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',6)->first();
+                if(!$updateServiceSettings){
+                    $updateServiceSettings=new CustomerAccountSettings();
+                    $updateServiceSettings->user_id=$user->id;
+                    $updateServiceSettings->settings_name=6;
+                }
+                $updateServiceSettings->settings = trim($request->status);
                 $updateServiceSettings->save();
             }
             if($request->has('language')){
-                $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>7]);
-                $updateServiceSettings->settings=>trim($request->language);
-                $updateServiceSettings->save();
+                $updateLanguageSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',7)->first();
+                if(!$updateLanguageSettings){
+                    $updateLanguageSettings=new CustomerAccountSettings();
+                    $updateLanguageSettings->user_id=$user->id;
+                    $updateLanguageSettings->settings_name=7;
+                }
+                $updateLanguageSettings->settings = trim($request->status);
+                $updateLanguageSettings->save();
             }
-        }catch(\Exception $e){
+            return response()->json([
+                'status'   => true,
+                'response' => "Account Settings Updated!"
+            ],200); 
+       }catch(\Exception $e){
             return response()->json([
                 'status'   => false,
                 'response' => $e->getMessage()
