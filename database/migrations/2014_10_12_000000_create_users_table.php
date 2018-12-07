@@ -34,6 +34,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('hlpnw_users');
+        Schema::dropIfExists('users');
     }
 }
