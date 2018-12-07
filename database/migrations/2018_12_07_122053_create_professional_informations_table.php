@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePersonalInformationsTable extends Migration
+class CreateProfessionalInformationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,24 +13,21 @@ class CreatePersonalInformationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('helpnow_personal_informations', function (Blueprint $table) {
+        Schema::create('helpnow_professional_informations', function (Blueprint $table) {
             $table->increments('id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedInteger('user_id');
-            $table->string('custom_user_id')->nullable();
-            $table->string('first_name')->nullable();
-            $table->string('middle_name')->nullable();
-            $table->string('last_name')->nullable();
-            $table->string('image')->nullable();
+            $table->string('employer_name')->nullable();
+            $table->string('designation')->nullable();
             $table->string('phone')->nullable();
+            $table->string('email')->nullable();
             $table->string('street')->nullable();
             $table->string('po')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('zip')->nullable();
-            $table->string('additional_address_info')->nullable();
-            $table->timestamps();
         });
+
     }
 
     /**
@@ -40,6 +37,6 @@ class CreatePersonalInformationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('helpnow_personal_informations');
+        Schema::dropIfExists('helpnow_professional_informations');
     }
 }

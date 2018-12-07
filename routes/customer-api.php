@@ -24,4 +24,8 @@ Route::get('ping', function() {
 });
 
 Route::post('create', 'UserController@storeCustomer');
-Route::post('login', 'UserController@login');
+Route::post('login', 'UserController@customerlogin');
+Route::get('fetch-demographyinfo', 'CustomerController@getDemographicinfo');
+Route::post('update-demographyinfo', 'CustomerController@saveDemographicinfo');
+Route::get('fetch-professionalinfo', 'CustomerController@getProfessionalinfo');
+Route::post('update-professionalinfo', 'CustomerController@saveProfessionalinfo');

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePersonalInformationsTable extends Migration
+class CreateCustomerPropertyInformationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,23 +13,22 @@ class CreatePersonalInformationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('helpnow_personal_informations', function (Blueprint $table) {
+        Schema::create('helpnow_customer_property_informations', function (Blueprint $table) {
             $table->increments('id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedInteger('user_id');
-            $table->string('custom_user_id')->nullable();
-            $table->string('first_name')->nullable();
-            $table->string('middle_name')->nullable();
-            $table->string('last_name')->nullable();
-            $table->string('image')->nullable();
-            $table->string('phone')->nullable();
+            $table->string('name');
+            $table->enum('property_type',[1,2,3,4])->comment('1->Residential, 2-> Commercial, 3-> Industrial, 4->Agricultural');
             $table->string('street')->nullable();
             $table->string('po')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('zip')->nullable();
-            $table->string('additional_address_info')->nullable();
+            $table->string('area')->nullable();
+            $table->string('area_unit')->nullable();
+            $table->string('deleted_at')->nullable();
             $table->timestamps();
+            
         });
     }
 
@@ -40,6 +39,6 @@ class CreatePersonalInformationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('helpnow_personal_informations');
+        Schema::dropIfExists('customer_property_informations');
     }
 }

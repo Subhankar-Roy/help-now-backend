@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use DB;
-use JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\User;
 use App\PersonalInformation;
 
@@ -52,16 +49,16 @@ class UserController extends Controller{
                 $customerInfo = new PersonalInformation();
                 $customerInfo->user_id = $createCustomer->id;
                 $customerInfo->custom_user_id = self::generateCustomerCustomID($createCustomer->id);
-                $customerInfo->first_name = trim($createCustomer->first_name);
-                $customerInfo->middle_name = (isset($createCustomer->middle_name))? trim($createCustomer->street) : "";
-                $customerInfo->last_name = trim($createCustomer->last_name);
-                $customerInfo->phone = trim($createCustomer->phone);
-                $customerInfo->street =(isset($createCustomer->street))? trim($createCustomer->street) : "";
-                $customerInfo->po = (isset($createCustomer->po))? trim($createCustomer->po) : "";
-                $customerInfo->city = (isset($createCustomer->city))? trim($createCustomer->city) : "";
-                $customerInfo->state = (isset($createCustomer->state))? trim($createCustomer->state) : "";
-                $customerInfo->zip = trim($createCustomer->zip);
-                $customerInfo->additional_address_info =(isset($createCustomer->add_info))? trim($createCustomer->add_info) : "";
+                $customerInfo->first_name = trim($request->first_name);
+                $customerInfo->middle_name = (isset($request->middle_name))? trim($request->street) : "";
+                $customerInfo->last_name = trim($request->last_name);
+                $customerInfo->phone = trim($request->phone);
+                $customerInfo->street =(isset($request->street))? trim($request->street) : "";
+                $customerInfo->po = (isset($request->po))? trim($request->po) : "";
+                $customerInfo->city = (isset($request->city))? trim($request->city) : "";
+                $customerInfo->state = (isset($request->state))? trim($request->state) : "";
+                $customerInfo->zip = trim($request->zip);
+                $customerInfo->additional_address_info =(isset($request->add_info))? trim($request->add_info) : "";
                 if($customerInfo->save()){
                     DB::commit();
                     return response()->json([
@@ -111,17 +108,19 @@ class UserController extends Controller{
         return $generateId;
     }
 
-     /**
+    /**
+    * Method for login customer
     * @return \Illuminate\Http\Response
     */
  
-    public function login(Request $request){
+    public function customerlogin(Request $request){
         try{
             $user = User::where('email', trim($request->email))->first();
             if($user ){
                 if($user->user_type==3){
                     if (Hash::check($request->password, $user->password)) {
-                        $token=$this->jwt($user);
+                        $credentials = $request->only('email', 'password');
+                        $token = JWTAuth::attempt($credentials);
                         return response()->json([
                             'status' => true,
                             'token' => $token,
