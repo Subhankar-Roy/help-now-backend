@@ -24,3 +24,4 @@ Route::get('ping', function() {
 });
 
 Route::post('create', 'UserController@storeCustomer');
+Route::post('login', 'UserController@login');

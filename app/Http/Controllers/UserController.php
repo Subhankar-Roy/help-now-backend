@@ -10,13 +10,14 @@ use Validator;
 use DB;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\User;
 use App\PersonalInformation;
 
 class UserController extends Controller{
     /**
      * Save the customer who is registering with email and password.
-     *
+     * 
      *
      * @return Response
      */
@@ -26,10 +27,10 @@ class UserController extends Controller{
                 'first_name'   => 'required|max:255',
                 'last_name'    => 'required|max:255',
                 'email'        => 'required|email|unique:users|max:255',
-                'password'     => 'required|max:255',
-                'confpassword' => 'required|max:255',
-                'phone'        => 'required|max:255',
-                'zip'          => 'required|max:255'
+                'password'     => 'required|min:6|max:255',
+                'confpassword' => 'required|min:6|max:255',
+                'phone'        => 'required|numeric',
+                'zip'          => 'required|numeric'
             ]);
 
             if ($validator->fails()){
@@ -50,16 +51,17 @@ class UserController extends Controller{
             if($createCustomer->save()){
                 $customerInfo = new PersonalInformation();
                 $customerInfo->user_id = $createCustomer->id;
-                //$customerInfo->custom_user_id =
+                $customerInfo->custom_user_id = self::generateCustomerCustomID($createCustomer->id);
                 $customerInfo->first_name = trim($createCustomer->first_name);
+                $customerInfo->middle_name = (isset($createCustomer->middle_name))? trim($createCustomer->street) : "";
                 $customerInfo->last_name = trim($createCustomer->last_name);
-                $customerInfo->phone = (int)trim($createCustomer->phone);
-                //$customerInfo->street =(isset($createCustomer->street))? trim($createCustomer->street) : NULL;
-                //$customerInfo->po = (isset($createCustomer->po))? trim($createCustomer->po) : NULL;
-                //$customerInfo->city = (isset($createCustomer->city))? trim($createCustomer->city) : NULL;
-                //$customerInfo->state = (isset($createCustomer->state))? trim($createCustomer->state) : NULL;
-                $customerInfo->zip = (int)trim($createCustomer->zip);
-                //$customerInfo->additional_address_info =(isset($createCustomer->add_info))? trim($createCustomer->add_info) : NULL;
+                $customerInfo->phone = trim($createCustomer->phone);
+                $customerInfo->street =(isset($createCustomer->street))? trim($createCustomer->street) : "";
+                $customerInfo->po = (isset($createCustomer->po))? trim($createCustomer->po) : "";
+                $customerInfo->city = (isset($createCustomer->city))? trim($createCustomer->city) : "";
+                $customerInfo->state = (isset($createCustomer->state))? trim($createCustomer->state) : "";
+                $customerInfo->zip = trim($createCustomer->zip);
+                $customerInfo->additional_address_info =(isset($createCustomer->add_info))? trim($createCustomer->add_info) : "";
                 if($customerInfo->save()){
                     DB::commit();
                     return response()->json([
@@ -91,9 +93,65 @@ class UserController extends Controller{
         }
     }
 
+    /**
+    * Method generate string for unique custom-user-id 
+    * @param $userid | int
+    * @return string
+    */
     protected function generateCustomerCustomID($userid){
-       // $customerId="C-";
         $getUserIdLength=strlen($userid);
-        //for($i=$getUserIdLength; )
+        $generateId=$userid;
+        for($i=$getUserIdLength; $i<9; $i++){
+            $generateId="0".$generateId;
+        }
+        $insert="-";
+        $position=3;
+        $generateId= implode($insert, str_split($generateId, $position));
+        $generateId="C-".$generateId."-USA";
+        return $generateId;
     }
+
+     /**
+    * @return \Illuminate\Http\Response
+    */
+ 
+    public function login(Request $request){
+        try{
+            $user = User::where('email', trim($request->email))->first();
+            if($user ){
+                if($user->user_type==3){
+                    if (Hash::check($request->password, $user->password)) {
+                        $token=$this->jwt($user);
+                        return response()->json([
+                            'status' => true,
+                            'token' => $token,
+                            'message' => "User Loggedin Successfully."
+                        ],200);
+                    }else{
+                        return response()->json([
+                            'status' => false,
+                            'message' => "Password Mismatch."
+                        ],400);
+                    }
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'message' => "This Email Id Is Not Registered As A Customer."
+                    ],400);  
+                }
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => "This Email Id Is Not Registered."
+                ],400);  
+            }
+        }catch(Exception $error){
+            return response()->json([
+                'status' => false,
+                'response' => $error,
+                'message' => "Something went worng! Try again!"
+            ],500);
+        }
+    }
+ 
 }

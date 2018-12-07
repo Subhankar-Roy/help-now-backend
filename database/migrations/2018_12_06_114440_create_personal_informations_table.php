@@ -16,8 +16,9 @@ class CreatePersonalInformationsTable extends Migration
         Schema::create('helpnow_personal_informations', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id');
-            $table->integer('custom_user_id')->nullable();
+            $table->string('custom_user_id')->nullable();
             $table->string('first_name')->nullable();
+            $table->string('middle_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('image')->nullable();
             $table->string('phone')->nullable();
@@ -25,7 +26,7 @@ class CreatePersonalInformationsTable extends Migration
             $table->string('po')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
-            $table->integer('zip')->nullable();
+            $table->string('zip')->nullable();
             $table->string('additional_address_info')->nullable();
             $table->timestamps();
         });
