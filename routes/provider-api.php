@@ -20,5 +20,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
  * this is just a demo route to check application is running or not
  */
 Route::get('ping', function() {
-    return 'working....';
+    return 'Providers working....';
 });
+Route::post('/sign-up', 'ProviderController@signUp');
