@@ -38,6 +38,6 @@ class CreatePersonalInformationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users_personal_informations');
+        Schema::dropIfExists('helpnow_personal_informations');
     }
 }
