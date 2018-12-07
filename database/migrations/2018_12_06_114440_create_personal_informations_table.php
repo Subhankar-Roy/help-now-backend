@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUsersPersonalInformationsTable extends Migration
+class CreatePersonalInformationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,10 @@ class CreateUsersPersonalInformationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('hlpnw_users_personal_informations', function (Blueprint $table) {
+        Schema::create('helpnow_personal_informations', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id');
+            $table->integer('custom_user_id')->nullable();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('image')->nullable();

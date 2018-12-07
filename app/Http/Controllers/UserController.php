@@ -11,7 +11,7 @@ use DB;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use App\User;
-use App\UsersPersonalInformation;
+use App\PersonalInformation;
 
 class UserController extends Controller{
     /**
@@ -48,8 +48,9 @@ class UserController extends Controller{
             $createCustomer->registration_type     = 1;
             $createCustomer->password              = Hash::make($request->password);
             if($createCustomer->save()){
-                $customerInfo = new User();
+                $customerInfo = new PersonalInformation();
                 $customerInfo->user_id = $createCustomer->id;
+                //$customerInfo->custom_user_id =
                 $customerInfo->first_name = trim($createCustomer->first_name);
                 $customerInfo->last_name = trim($createCustomer->last_name);
                 $customerInfo->phone = (int)trim($createCustomer->phone);
@@ -57,7 +58,7 @@ class UserController extends Controller{
                 //$customerInfo->po = (isset($createCustomer->po))? trim($createCustomer->po) : NULL;
                 //$customerInfo->city = (isset($createCustomer->city))? trim($createCustomer->city) : NULL;
                 //$customerInfo->state = (isset($createCustomer->state))? trim($createCustomer->state) : NULL;
-                $customerInfo->zip = trim($createCustomer->zip);
+                $customerInfo->zip = (int)trim($createCustomer->zip);
                 //$customerInfo->additional_address_info =(isset($createCustomer->add_info))? trim($createCustomer->add_info) : NULL;
                 if($customerInfo->save()){
                     DB::commit();
@@ -88,5 +89,11 @@ class UserController extends Controller{
                 'message' => "Something went worng! Try again!"
             ],500);
         }
+    }
+
+    protected function generateCustomerCustomID($userid){
+       // $customerId="C-";
+        $getUserIdLength=strlen($userid);
+        //for($i=$getUserIdLength; )
     }
 }
