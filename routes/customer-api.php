@@ -25,18 +25,26 @@ Route::get('ping', function() {
 
 Route::post('create', 'CustomerController@store');
 Route::post('login', 'CustomerController@login');
-Route::get('fetch/demographyinfo', 'CustomerController@getDemographicinfo');
-Route::post('update/demographyinfo', 'CustomerController@saveDemographicinfo');
-Route::get('fetch/professionalinfo', 'CustomerController@getProfessionalinfo');
-Route::post('update/professionalinfo', 'CustomerController@saveProfessionalinfo');
-Route::get('fetch/paymentinfo', 'CustomerController@getPaymentinfo');
-Route::post('update/paymentinfo', 'CustomerController@savePaymentinfo');
-Route::post('save/propertyinfo', 'CustomerController@createProperty');
-Route::post('update/propertyinfo', 'CustomerController@updateProperty');
-Route::post('delete/propertyinfo', 'CustomerController@deleteProperty');
-Route::post('fetch/allproperty', 'CustomerController@getallProperty');
-Route::post('fetch/propertyinfo', 'CustomerController@getPropertyinfo');
 
 
 
+
+
+Route::group(['middleware' => ['jwt.auth']], function () {
+	Route::get('fetch/personalinfo', 'CustomerController@getPersonalinfo');
+	Route::post('update/personalinfo', 'CustomerController@savePersonalInfo');
+    Route::get('fetch/demographyinfo', 'CustomerController@getDemographicinfo');
+	Route::post('update/demographyinfo', 'CustomerController@saveDemographicinfo');
+	Route::get('fetch/professionalinfo', 'CustomerController@getProfessionalinfo');
+	Route::post('update/professionalinfo', 'CustomerController@saveProfessionalinfo');
+	Route::get('fetch/paymentinfo', 'CustomerController@getPaymentinfo');
+	Route::post('update/paymentinfo', 'CustomerController@savePaymentinfo');
+	Route::post('save/propertyinfo', 'CustomerController@createProperty');
+	Route::post('update/propertyinfo', 'CustomerController@updateProperty');
+	Route::post('delete/propertyinfo', 'CustomerController@deleteProperty');
+	Route::post('fetch/allproperty', 'CustomerController@getallProperty');
+	Route::post('fetch/propertyinfo', 'CustomerController@getPropertyinfo');
+	Route::post('update/accountsettings', 'CustomerController@saveAccountsettings');
+	Route::post('fetch/accountsettings', 'CustomerController@getAccountsettings');
+});
 

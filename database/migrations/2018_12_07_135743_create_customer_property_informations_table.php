@@ -39,6 +39,6 @@ class CreateCustomerPropertyInformationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('customer_property_informations');
+        Schema::dropIfExists('helpnow_customer_property_informations');
     }
 }

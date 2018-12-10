@@ -31,20 +31,19 @@ class CustomerController extends Controller
     public function store(Request $request){
         try{
             $validator = Validator::make($request->all(), [
-                'first_name'   => 'required|max:255',
-                'last_name'    => 'required|max:255',
-                'email'        => 'required|email|unique:users|max:255',
-                'password'     => 'required|min:6',
-                'confpassword' => 'required|min:6|same:password',
-                'phone'        => 'required|numeric|min:10',
-                'zip'          => 'required|numeric'
+                'first_name'       => 'required|max:255',
+                'last_name'        => 'required|max:255',
+                'email'            => 'required|email|unique:users|max:255',
+                'password'         => 'required|min:8',
+                'confirm_password' => 'required|min:8|same:password',
+                'phone'            => 'required|numeric|min:10',
+                'zip'              => 'required|numeric|min:5'
             ]);
 
             if ($validator->fails()){
                 return response()->json([
                     'status' => false,
-                    'response' => $validator->errors(),
-                    'message'  =>'Please provide required fields properly.'
+                    'response' => $validator->errors()
                 ],400);
             }
 
@@ -73,29 +72,28 @@ class CustomerController extends Controller
                     DB::commit();
                     return response()->json([
                         'status' => true,
-                        'message'  => "User Created Successfully."
+                        'response'  => "User Created Successfully."
 
                     ],201);
                 }else{
                     DB::rollback();
                     return response()->json([
                         'status' => false,
-                        'message' => "Something went worng! Try again!"
+                        'response' => "Something went worng! Try again!"
                     ],400);
                 }
             }else{
                 DB::rollback();
                 return response()->json([
                     'status' => false,
-                    'message' => "Something went worng! Try again!"
+                    'response' => "Something went worng! Try again!"
                 ],400);
             }
         }catch(\Exception $e){
             DB::rollback();
             return response()->json([
                 'status'   => false,
-                'response' => $e->getMessage(),
-                'message' => "Something went worng! Try again!"
+                'response' => $e->getMessage()
             ],$e->getCode()); 
         }
     }
@@ -110,66 +108,176 @@ class CustomerController extends Controller
     }
 
     /**
-     * Methods to update and save customer's demographic data
-     * @param  \Illuminate\Http\Request  $request
+     * Method for update customer personal information
+     * @param Illuminate/Http/Request $request
      * @return \Illuminate\Http\Response
     */
-    public function saveDemographicinfo(Request $request){
+    public function savePersonalInfo(Request $request){
         try{
+            $user=$request->user();
             DB::beginTransaction();
-            $saveDemographics = DemographicsInformation::updateOrCreate(['user_id' => $request->userId]);
-            $saveDemographics->language     = $request->has('language')? trim($request->language) : NULL;
-            $saveDemographics->gender       = $request->has('gender')? trim($request->gender) : NULL;
-            $saveDemographics->birthdate    = $request->has('birthdate')? trim($request->birthdate) : NULL;
-            $saveDemographics->ethnicity    = $request->has('ethnicity')? trim($request->ethnicity) : NULL;
-            $saveDemographics->relationship = $request->has('relationship')? trim($request->relationship) : NULL;
-            $saveDemographics->education    = $request->has('education')? trim($request->education) : NULL;
-            $saveDemographics->occupation   = $request->has('occupation')? trim($request->occupation) : NULL;
-            if($saveDemographics->save()){
+            $savePersonalInfo= PersonalInformation::where('user_id',$user->id)->first();
+            if(!$savePersonalInfo){
+                $savePersonalInfo= new PersonalInformation();
+                $savePersonalInfo->user_id        = $user->id;
+                $savePersonalInfo->custom_user_id = unique_id_generator('C', 'USA');
+            }
+            if($request->has('first_name')){
+                $savePersonalInfo->first_name = trim($request->first_name);
+            }
+            if($request->has('middle_name')){
+               $savePersonalInfo->middle_name = trim($request->middle_name);
+            }
+            if($request->has('last_name')){
+               $savePersonalInfo->last_name = trim($request->last_name);
+            }
+            if($request->has('phone')){
+               $savePersonalInfo->phone = trim($request->phone);
+            }
+            if($request->has('street')){
+               $savePersonalInfo->street = trim($request->street);
+            }
+            if($request->has('po')){
+               $savePersonalInfo->po = trim($request->po);
+            }
+            if($request->has('city')){
+               $savePersonalInfo->city = trim($request->city);
+            }
+            if($request->has('state')){
+               $savePersonalInfo->state = trim($request->state);
+            }
+            if($request->has('zip')){
+               $savePersonalInfo->zip = trim($request->zip);
+            }
+            if($savePersonalInfo->save()){
                 DB::commit();
                 return response()->json([
                     'status' => true,
-                    'message'  => "Demographics information saved successfully."
+                    'response'  => "Personal information saved successfully."
                 ],200);
             }else{
                 DB::rollback();
                 return response()->json([
                     'status' => false,
-                    'message' => "Something went worng! Try again!"
+                    'response' => "Something went worng! Try again!"
                 ],400);
             }
         }catch(\Exception $e){
             DB::rollback();
             return response()->json([
                 'status' => false,
-                'response' => $e->getMessage(),
-                'message' => "Something went worng! Try again!"
+                'response' => $e->getMessage()
             ],$e->getCode());
         }
     }
 
-    public function getDemographicinfo(){
+    /**
+     * Method to fetch customer personal information
+     * @param Illuminate/Http/Request $request
+     * @return \Illuminate\Http\Response
+    */
+    public function getPersonalinfo(Request $request){
         try{
-            $getprofessionalInfo=DemographicsInformation::where('user_id',$request->userId)->first();
-            if(count($getprofessionalInfo) >0){
+            $user=$request->user();
+            $getPersonalinfo= PersonalInformation::where('user_id',$user->id)->first();
+            return response()->json([
+                'status'   => true,
+                'response' => [
+                        'user'         => $user,
+                        'personalinfo' =>  $getPersonalinfo
+                ]
+            ],200);
+        }catch(\Exception $e){
+            DB::rollback();
+            return response()->json([
+                'status' => false,
+                'response' => $e->getMessage()
+            ],$e->getCode());
+        }
+    }
+    /**
+     * Methods to update and save customer's demographic data
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+    */
+    public function saveDemographicinfo(Request $request){
+        try{
+            $user=$request->user();
+            DB::beginTransaction();
+            $saveDemographics = DemographicsInformation::updateOrCreate(['user_id' => $user->id]);
+            if($request->has('language')){
+                $saveDemographics->language = trim($request->language);
+            }
+            if($request->has('gender')){
+                $saveDemographics->gender = trim($request->gender);
+            }
+            if($request->has('birthdate')){
+                $saveDemographics->birthdate = trim($request->birthdate);
+            }
+            if($request->has('ethnicity')){
+                $saveDemographics->ethnicity = trim($request->ethnicity);
+            }
+            if($request->has('relationship')){
+                $saveDemographics->relationship = trim($request->relationship);
+            }
+            if($request->has('education')){
+                $saveDemographics->education = trim($request->education);
+            }
+            if($request->has('occupation')){
+                $saveDemographics->occupation = trim($request->occupation);
+            }
+            if($saveDemographics->save()){
+                DB::commit();
                 return response()->json([
                     'status' => true,
-                    'demostatus' => 1,
-                    'response'   => $getprofessionalInfo,
-                    'message' => "Please Fill Demographics Information."
+                    'response'  => "Demographics information saved successfully."
+                ],200);
+            }else{
+                DB::rollback();
+                return response()->json([
+                    'status' => false,
+                    'response' => "Something went worng! Try again!"
+                ],400);
+            }
+        }catch(\Exception $e){
+            DB::rollback();
+            return response()->json([
+                'status' => false,
+                'response' => $e->getMessage()
+            ],$e->getCode());
+        }
+    }
+
+    /**
+     * Fetch customer's dempgraphic info.
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function getDemographicinfo(Request $request){
+        try{
+            $user=$request->user();
+            $getdemographicInfo=DemographicsInformation::where('user_id',$user->id)->first();
+            if($getdemographicInfo){
+                return response()->json([
+                    'status'   => true,
+                    'response' => [
+                            'demostatus'      => 1,
+                            'demographicinfo' =>  $getdemographicInfo,
+                    ]
                 ],200);
             }else{
                 return response()->json([
-                    'status' => true,
-                    'demostatus' => 0,
-                    'message' => "Please Fill Demographics Information."
+                    'status'   => true,
+                    'response' => [
+                        'demostatus' => 0,
+                        'message'    => "Please Fill Demographics Information."
+                    ]
                 ],200);
             }
         }catch(\Exception $e){
             return response()->json([
-                'status' => false,
+                'status'   => false,
                 'response' => $e->getMessage(),
-                'message' => "Something went worng! Try again!"
             ],$e->getCode());
         }
     }
@@ -181,44 +289,53 @@ class CustomerController extends Controller
     */
     public function saveProfessionalinfo(Request $request){
         try{
-            $validator = Validator::make($request->all(), [
-                'work_phone'   => 'required',
-                'work_email'   => 'required',
-                'street'       => 'required',
-                'city'         => 'required',
-                'zip'          => 'required|numeric'
-            ]);
-
             if ($validator->fails()){
                 return response()->json([
                     'status' => false,
-                    'response' => $validator->messages(),
-                    'message'  =>'Please provide required fields.'
+                    'response' => $validator->messages()
                 ],400);
             }
-
+            $user=$request->user();
             DB::beginTransaction();
-            $saveProfessionalinfo=ProfessionalInformation::updateOrCreate(['user_id' => $request->userId]);
-            $saveProfessionalinfo->employer_name = $request->has('employer_name')? trim($request->employer_name) : NULL;
-            $saveProfessionalinfo->designation   = $request->has('designation')? trim($request->designation) : NULL;
-            $saveProfessionalinfo->phone         = $request->has('phone')? trim($request->phone) : NULL;
-            $saveProfessionalinfo->email         = $request->has('email')? trim($request->email) : NULL;
-            $saveProfessionalinfo->street        = $request->has('street')? trim($request->street) : NULL;
-            $saveProfessionalinfo->po            = $request->has('po')? trim($request->po) : NULL;
-            $saveProfessionalinfo->city          = $request->has('city')? trim($request->city) : NULL;
-            $saveProfessionalinfo->state         = $request->has('state')? trim($request->state) : NULL;
-            $saveProfessionalinfo->zip           = $request->has('zip')? trim($request->zip) : NULL;
+            $saveProfessionalinfo=ProfessionalInformation::updateOrCreate(['user_id' => $user->id]);
+            if($request->has('employer_name')){
+                $saveProfessionalinfo->employer_name = trim($request->employer_name);
+            }
+            if($request->has('designation')){
+                 $saveProfessionalinfo->designation = trim($request->designation);
+            }
+            if($request->has('phone')){
+                $saveProfessionalinfo->phone = trim($request->phone);
+            }
+            if($request->has('email')){
+                $saveProfessionalinfo->email = trim($request->email);
+            }
+            if($request->has('street')){
+                $saveProfessionalinfo->street = trim($request->street);
+            }
+            if($request->has('po')){
+                $saveProfessionalinfo->po = trim($request->po);
+            }
+            if($request->has('city')){
+                $saveProfessionalinfo->city = trim($request->city);
+            }
+            if($request->has('state')){
+                $saveProfessionalinfo->state = trim($request->state);
+            }
+            if($request->has('zip')){
+                $saveProfessionalinfo->zip = trim($request->zip);
+            }
             if($saveProfessionalinfo->save()){
                 DB::commit();
                 return response()->json([
                     'status' => true,
-                    'message'  => "Professional information saved successfully."
+                    'response'  => "Professional information saved successfully."
                 ],200);
             }else{
                 DB::rollback();
                 return response()->json([
                     'status' => false,
-                    'message' => "Something went worng! Try again!"
+                    'response' => "Something went worng! Try again!"
                 ],400);
             }
         }catch(\Exception $e){
@@ -226,33 +343,40 @@ class CustomerController extends Controller
             return response()->json([
                 'status' => false,
                 'response' => $e->getMessage(),
-                'message' => "Something went worng! Try again!"
             ],$e->getCode());
         }
     }
 
-    public function getProfessionalinfo(){
+    /**
+     * Fetch customer's professional info.
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function getProfessionalinfo(Request $request){
         try{
-            $getprofessionalInfo=ProfessionalInformation::where('user_id',$request->userId)->first();
+            $user=$request->user();
+            $getprofessionalInfo=ProfessionalInformation::where('user_id',$user->id)->first();
             if(count($getprofessionalInfo) >0){
                 return response()->json([
-                    'status' => true,
-                    'demostatus' => 1,
-                    'response'   => $getprofessionalInfo,
-                    'message' => "Professional Information"
+                    'status'   => true,
+                    'response' => [
+                            'demostatus'      => 1,
+                            'demographicinfo' =>  $getprofessionalInfo,
+                    ]
                 ],200);
             }else{
                 return response()->json([
                     'status' => true,
-                    'demostatus' => 0,
-                    'message' => "Please Fill Demographics Information."
+                    'response' => [
+                            'demostatus' => 0,
+                            'message'    => "Please Fill Demographics Information."
+                    ]
                 ],200);
             }
         }catch(\Exception $e){
             return response()->json([
-                'status' => false,
-                'response' => $e->getMessage(),
-                'message' => "Something went worng! Try again!"
+                'status'   => false,
+                'response' => $e->getMessage()
             ],$e->getCode());
         }
     }
@@ -272,68 +396,102 @@ class CustomerController extends Controller
 
             if ($validator->fails()){
                 return response()->json([
-                    'status' => false, 
-                    'response' => $validator->messages(),
-                    'message'  =>'Please provide required fields.'
+                    'status'   => false, 
+                    'response' => $validator->messages()
                 ],400);
             }
 
+            $user=$request->user();
             DB::beginTransaction();
-            $savePaymentinfo=CustomerPaymentSettings::updateOrCreate(['user_id' => $request->userId]);
-            $savePaymentinfo->name          = $request->has('$request->name')? trim($request->name) : NULL;
-            $savePaymentinfo->property_type = $request->has('property_type')? trim($request->property_type) : NULL;
-            $savePaymentinfo->street        = $request->has('street')? trim($request->street) : NULL;
-            $savePaymentinfo->po            = $request->has('po')? trim($request->po) : NULL;
-            $savePaymentinfo->city          = $request->has('city')? trim($request->city) : NULL;
-            $savePaymentinfo->state         = $request->has('state')? trim($request->state) : NULL;
-            $savePaymentinfo->zip           = $request->has('zip')? trim($request->zip) : NULL;
-            $savePaymentinfo->area          = $request->has('area')? trim($request->area) : NULL;
-            $savePaymentinfo->area_unit     = $request->has('area_unit')? trim($request->area_unit) : NULL;
+            $savePaymentinfo=CustomerPaymentSettings::updateOrCreate(['user_id' => $user->id]);
+            if($request->has('name')){
+                $savePaymentinfo->name = trim($request->name);
+            }
+            if($request->has('card_type')){
+                $savePaymentinfo->card_type = trim($request->card_type);
+            }
+            if($request->has('account_number')){
+                $savePaymentinfo->account_number = trim($request->account_number);
+            }
+            if($request->has('expiration')){
+                $savePaymentinfo->expiration = trim($request->expiration);
+            }
+            if($request->has('name_on_card')){
+                $savePaymentinfo->name_on_card = trim($request->name_on_card);
+            }
+            if($request->has('security_code')){
+                $savePaymentinfo->security_code = trim($request->security_code);
+            }
+            if($request->has('street')){
+                $savePaymentinfo->street = trim($request->street);
+            }
+            if($request->has('po')){
+                $savePaymentinfo->po = trim($request->po);
+            }
+            if($request->has('city')){
+                $savePaymentinfo->city = trim($request->city);
+            }
+            if($request->has('state')){
+                $savePaymentinfo->state = trim($request->state);
+            }
+            if($request->has('paypal_account')){
+                $savePaymentinfo->paypal_account = trim($request->paypal_account);
+            }
+            if($request->has('venmo_account')){
+                $savePaymentinfo->venmo_account = trim($request->venmo_account);
+            }
             if($savePaymentinfo->save()){
                 DB::commit();
                 return response()->json([
-                    'status' => true,
-                    'message'  => "Prayment information saved successfully."
+                    'status'    => true,
+                    'response'  => "Prayment information saved successfully."
                 ],200);
             }else{
                 DB::rollback();
                 return response()->json([
-                    'status' => false,
-                    'message' => "Something went worng! Try again!"
+                    'status'   => false,
+                    'response' => "Something went worng! Try again!"
                 ],400);
             }
         }catch(\Exception $e){
              DB::rollback();
             return response()->json([
-                'status' => false,
+                'status'   => false,
                 'response' => $e->getMessage(),
-                'message' => "Something went worng! Try again!"
             ],$e->getCode());
         }
     }
 
-    public function getPaymentinfo(){
+    /**
+     * Fetch customer's payment info.
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function getPaymentinfo(Request $request){
         try{
-            $getprofessionalInfo=CustomerPaymentSettings::where('user_id',$request->userId)->first();
-            if(count($getprofessionalInfo) >0){
+            $user=$request->user();
+            $getpaymentInfo=CustomerPaymentSettings::where('user_id',$user->id)->first();
+            if(count($getpaymentInfo) >0){
                 return response()->json([
-                    'status' => true,
-                    'demostatus' => 1,
-                    'response'   => $getprofessionalInfo,
-                    'message' => "Payment Settings"
+                    'status'   => true,
+                    'response' => [
+                            'demostatus' => 1,
+                            'message'    => $getpaymentInfo
+                    ]
                 ],200);
             }else{
                 return response()->json([
-                    'status' => true,
-                    'demostatus' => 0,
-                    'message' => "Please Fill Payment Settings."
+                    'status'   => true,
+                    'response' => [
+                            'demostatus' => 0,
+                            'message'    => "Please Fill Payment Settings."
+                    ]
                 ],200);
             }
         }catch(\Exception $e){
             return response()->json([
-                'status' => false,
+                'status'   => false,
                 'response' => $e->getMessage(),
-                'message' => "Something went worng! Try again!"
             ],$e->getCode());
         }
     }
@@ -345,37 +503,37 @@ class CustomerController extends Controller
     */
     public function createProperty(Request $request){
         try{
+            $user=$request->user();
             DB::beginTransaction();
             $saveProperty = new CustomerPropertyInformation();
-            $saveProperty->user_id       = $request->user_id;
-            $saveProperty->name          = $request->name;
-            $saveProperty->property_type = $request->property_type;
-            $saveProperty->street        = $request->street;
-            $saveProperty->po            = $request->po;
-            $saveProperty->city          = $request->city;
-            $saveProperty->state         = $request->state;
-            $saveProperty->zip           = $request->zip;
-            $saveProperty->area          = $request->area;
-            $saveProperty->area_unit     = $request->area_unit;
+            $saveProperty->user_id       = $user->id; 
+            $saveProperty->name          = ($request->has('name')) ? trim($request->name) : NULL;
+            $saveProperty->property_type = ($request->has('type')) ? trim($request->type) : NULL;
+            $saveProperty->street        = ($request->has('street')) ? trim($request->street) : NULL;
+            $saveProperty->po            = ($request->has('po')) ? trim($request->po) : NULL;
+            $saveProperty->city          = ($request->has('city')) ? trim($request->city) : NULL;
+            $saveProperty->state         = ($request->has('state')) ? trim($request->state) : NULL;
+            $saveProperty->zip           = ($request->has('zip')) ? trim($request->zip) : NULL;
+            $saveProperty->area          = ($request->has('area')) ? trim($request->area) : NULL;
+            $saveProperty->area_unit     = ($request->has('name')) ? trim($request->area_unit) : NULL;
             if($saveProperty->save()){
                 DB::commit();
                 return response()->json([
-                    'status' => true,
-                    'message'  => "Property information saved successfully."
+                    'status'   => true,
+                    'response' => "Property information saved successfully."
                 ],200);
             }else{
                 DB::rollback();
                 return response()->json([
-                    'status' => false,
+                    'status'   => false,
                     'response' => "Something went worng! Try again!"
                 ],400);
             }
         }catch(\Exception $e){
              DB::rollback();
             return response()->json([
-                'status' => false,
-                'response' => $e->getMessage(),
-                'message' => "Something went worng! Try again!"
+                'status'   => false,
+                'response' => $e->getMessage()
             ],$e->getCode());
         }
     }
@@ -387,46 +545,62 @@ class CustomerController extends Controller
     */
     public function updateProperty(Request $request){
         try{
+            $user=$request->user();
             DB::beginTransaction();
-            $getProperty=CustomerPropertyInformation::where('user_id',$request->userId)->where('id',$request->propertyId)->first();
-            if(count($paymentInfo) >0){
-                $updateProperty=CustomerPropertyInformation::find($paymentInfo->id);
-                $updateProperty->user_id       = $request->user_id;
-                $updateProperty->name          = $request->name;
-                $updateProperty->property_type = $request->property_type;
-                $updateProperty->street        = $request->street;
-                $updateProperty->po            = $request->po;
-                $updateProperty->city          = $request->city;
-                $updateProperty->state         = $request->state;
-                $updateProperty->zip           = $request->zip;
-                $updateProperty->area          = $request->area;
-                $updateProperty->area_unit     = $request->area_unit;
+            $updateProperty=CustomerPropertyInformation::where('user_id',$request->userId)->where('id',$request->propertyId)->first();
+            if(count($updateProperty) >0){
+                if($request->has('name')){
+                    $updateProperty->name = trim($request->name);
+                }
+                if($request->has('type')){
+                    $updateProperty->property_type = trim($request->type);
+                }
+                if($request->has('street')){
+                    $updateProperty->street = trim($request->street);
+                }
+                if($request->has('po')){
+                    $updateProperty->po = trim($request->po);
+                }
+                if($request->has('city')){
+                    $updateProperty->city = trim($request->city);
+                }
+                if($request->has('state')){
+                    $updateProperty->state = trim($request->state);
+                }
+                if($request->has('zip')){
+                    $updateProperty->zip = trim($request->zip);
+                }
+                if($request->has('area')){
+                    $updateProperty->area = trim($request->area);
+                }
+                if($request->has('area_unit')){
+                    $updateProperty->area_unit = trim($request->area_unit);
+                }
                 if($updateProperty->save()){
                     DB::commit();
                     return response()->json([
-                        'status' => true,
-                        'message'  => "Property information updated successfully."
+                        'status'   => true,
+                        'response' => "Property information updated successfully."
                     ],200);
                 }else{
                     DB::rollback();
                     return response()->json([
-                        'status' => false,
+                        'status'   => false,
                         'response' => "Something went worng! Try again!"
                     ],400);
                 }
             }else{
                  DB::rollback();
                 return response()->json([
-                    'status' => false,
+                    'status'   => false,
                     'response' => "This property information is not available!"
                 ],400);
             }
         }catch(\Exception $e){
              DB::rollback();
             return response()->json([
-                'status' => false,
-                'response' => $e->getMessage(),
-                'message' => "Something went worng! Try again!"
+                'status'   => false,
+                'response' => $e->getMessage()
             ],$e->getCode());
         }  
     }
@@ -440,38 +614,214 @@ class CustomerController extends Controller
         try{
             DB::beginTransaction();
             $propertyId=trim($requst->property_id);
+            $user=$request->user();
 
-            $property =CustomerPropertyInformation::find($propertyId);
-            if($property->delete()){
+            $property =CustomerPropertyInformation::where('id',$propertyId)->where('user_id',$user->id)->delete();
+            if($property){
                 DB::commit();
                 return response()->json([
                     'status'   => true,
-                    'response' => "Success",
-                    'message' => "Property deleted successfully."
+                    'response' => "Property deleted successfully."
                 ],200); 
             }else{
                 DB::rollback();
                 return response()->json([
                     'status'   => false,
-                    'response' => "Fail",
-                    'message' => "Property can not be deleted. Try Again."
+                    'response' => "Property can not be deleted. Try Again."
                 ],400);
             }
         }catch(\Exception $e){
             DB::rollback();
             return response()->json([
                 'status'   => false,
-                'response' => $e->getMessage(),
-                'message' => "Something went worng! Try again!"
+                'response' => $e->getMessage()
             ],$e->getCode()); 
         }
     }
 
-    public function getallProperty(){
-
+    /**
+     * Fetch all property of a customer
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function getallProperty(Request $request){
+        try{
+            $user=$request->user();
+            $allproperty =CustomerPropertyInformation::where('user_id',$user->id)->get();
+            return response()->json([
+                'status'   => false,
+                'response' =>[
+                    'propertycount' => count($allproperty),
+                    'allproperty'   => $allproperty
+                ]
+            ],200); 
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
     }
 
-    public function getPropertyinfo(){
-        
+    /**
+     * Fetch a property details of a customer
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function getPropertyinfo(Request $request){
+        try{
+            $user=$request->user();
+            $allproperty =CustomerPropertyInformation::where('id',$request->propertyid)->where('user_id',$user->id)->first();
+            return response()->json([
+                'status'   => false,
+                'response' =>[
+                    'propertyinfo' => $allproperty,
+                ]
+            ],200); 
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    /**
+     * Update a settings details of a customer
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function saveAccountsettings(Request $request){
+        try{
+            $user=$request->user();
+            if($request->has('notification_text')){
+                if(($request->notification_text)==0){
+                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','T')->delete();
+                }else{
+                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>1]);
+                    $updateServiceSettings->settings=>'T';
+                    $updateServiceSettings->save();
+                }
+            }
+            if($request->has('notification_email')){
+                if(($request->notification_email)==0){
+                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','E')->delete();
+                }else{
+                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>1]);
+                    $updateServiceSettings->settings=>'E';
+                    $updateServiceSettings->save();
+                }
+            }
+            if($request->has('notification_social')){
+                if(($request->notification_social)==0){
+                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','S')->delete();
+                }else{
+                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>1]);
+                    $updateServiceSettings->settings=>'S';
+                    $updateServiceSettings->save();
+                }
+
+            }
+            if($request->has('notification_phone')){
+                if(($request->notification_phone)==0){
+                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','P')->delete();
+                }else{
+                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>1]);
+                    $updateServiceSettings->settings=>'P';
+                    $updateServiceSettings->save();
+                }
+            }
+            if($request->has('specialoffer_text')){
+                if(($request->specialoffer_text)==0){
+                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','T')->delete();
+                }else{
+                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>2]);
+                    $updateServiceSettings->settings=>'T';
+                    $updateServiceSettings->save();
+                }
+                
+            }
+            if($request->has('specialoffer_email')){
+                if(($request->specialoffer_email)==0){
+                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','E')->delete();
+                }else{
+                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>2]);
+                    $updateServiceSettings->settings=>'E';
+                    $updateServiceSettings->save();
+                }
+                
+            }
+            if($request->has('specialoffer_social')){
+                if(($request->specialoffer_social)==0){
+                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','S')->delete();
+                }else{
+                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>2]);
+                    $updateServiceSettings->settings=>'S';
+                    $updateServiceSettings->save();
+                }
+            }
+            if($request->has('specialoffer_phone')){
+                if(($request->specialoffer_phone)==0){
+                     $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','P')->delete();
+                }else{
+                    $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>2]);
+                    $updateServiceSettings->settings=>'P';
+                    $updateServiceSettings->save();
+                }
+            }
+            if($request->has('privacy')){
+                $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>3]);
+                $updateServiceSettings->settings=>trim($request->privacy);
+                $updateServiceSettings->save();
+            }
+            if($request->has('post')){
+                $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>4]);
+                $updateServiceSettings->settings=>trim($request->post);
+                $updateServiceSettings->save();
+            }
+            if($request->has('status')){
+                $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>5]);
+                $updateServiceSettings->settings =>trim($request->status);
+                $updateServiceSettings->save();
+            }
+            if($request->has('service')){
+                $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>6]);
+                $updateServiceSettings->settings=>trim($request->service);
+                $updateServiceSettings->save();
+            }
+            if($request->has('language')){
+                $updateServiceSettings=CustomerAccountSettings::updateOrCreate(['user_id' => $user->id, 'settings_name' =>7]);
+                $updateServiceSettings->settings=>trim($request->language);
+                $updateServiceSettings->save();
+            }
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    /**
+     * Fetch a settings details of a customer
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function getAccountsettings(Request $request){
+        try{
+            $user=$request->user();
+            $allsettings =CustomerAccountSettings::where('user_id',$user->id)->get();
+            return response()->json([
+                'status'   => false,
+                'response' =>[
+                    'settings' => $allsettings,
+                ]
+            ],200); 
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
     }
 }

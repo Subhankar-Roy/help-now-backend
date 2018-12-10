@@ -17,7 +17,7 @@ class CreateCustomerAccountSettingsTable extends Migration
             $table->increments('id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedInteger('user_id');
-            $table->integer('settings_name')->comment('1->Notification, 2->Special Offers, 3->Privacy, 4->Posts, 5->Status, 6->Service');
+            $table->integer('settings_name')->comment('1->Notification, 2->Special Offers, 3->Privacy, 4->Posts, 5->Status, 6->Service, 7->Language');
             $table->string('settings')->comment('T->Text, E->Email, S->Social, P->Phone, 0->Inactive, 1->Active');
             $table->timestamps();
         });

@@ -35,6 +35,6 @@ class CreateDemographicsInformationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('demographics_informations');
+        Schema::dropIfExists('helpnow_demographics_informations');
     }
 }

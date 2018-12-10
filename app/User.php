@@ -113,8 +113,8 @@ class User extends Authenticatable implements JWTSubject
                 } else {
                     return response()->json([
                         'status' => false,
-                        'response' => $e->getMessage()
-                    ],$e->getCode());
+                        'response' => $exception->getMessage()
+                    ],$exception->getCode());
                 }
             }
         } else {
