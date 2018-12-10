@@ -3230,12 +3230,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tymondesigns/jwt-auth.git",
-                "reference": "689fcc263f6c4f650057905ae6dce441879df19b"
+                "reference": "ef07317a33f5b5269f8f4e6db11d879223134646"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tymondesigns/jwt-auth/zipball/689fcc263f6c4f650057905ae6dce441879df19b",
-                "reference": "689fcc263f6c4f650057905ae6dce441879df19b",
+                "url": "https://api.github.com/repos/tymondesigns/jwt-auth/zipball/ef07317a33f5b5269f8f4e6db11d879223134646",
+                "reference": "ef07317a33f5b5269f8f4e6db11d879223134646",
                 "shasum": ""
             },
             "require": {
@@ -3297,7 +3297,7 @@
                 "jwt",
                 "laravel"
             ],
-            "time": "2018-10-17T13:25:54+00:00"
+            "time": "2018-12-08T23:39:50+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

@@ -22,4 +22,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('ping', function() {
     return 'Providers working....';
 });
+/**
+ * get the authenticated user type from jwt authentication
+ */
+Route::middleware('jwt.auth')->get('users', function () {
+    return auth('api')->user();
+});
 Route::post('/sign-up', 'ProviderController@signUp');
+Route::post('/login', 'ProviderController@login');

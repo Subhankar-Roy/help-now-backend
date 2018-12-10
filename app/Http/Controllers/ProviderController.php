@@ -96,4 +96,73 @@ class ProviderController extends Controller
             }
         }
     }
+    /**
+     * This function sign in one user
+     * @param Illuminate/Http/Request $request
+     * @return json
+     */
+    public function login(Request $request) {
+        if ($request->has('email') && $request->has('password')) {
+            $credentials = [
+                'email' => $request->email,
+                'password' => $request->password
+            ];
+            try {
+                $token = auth('api')->attempt($credentials);
+                if ($token) {
+                    return response()->json([
+                        'status' => true,
+                        'response' => [
+                            'token' => $token,
+                            'authenticated_user' => auth('api')->user(),
+                            // to change the expiration of web token go to config/jwt.php
+                            'expires' => auth('api')->factory()->getTTL() * 60,
+                        ]
+                        ],200);
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'response' => 'Unauthorized!'
+                    ],401);
+                }
+            } catch (\Exception $exception) {
+                // Exception handling based on types
+                if ($exception instanceof UnauthorizedHttpException) {
+                    $preException = $exception->getPrevious();
+                    if ($preException instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
+                        return response()->json([
+                            'status' => false,
+                            'response' => 'TOKEN_EXPIRED'
+                        ],401);
+                    } else if ($preException instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
+                        return response()->json([
+                            'status' => false,
+                            'response' => 'TOKEN_INVALID'
+                        ],401);
+                    } else if ($preException instanceof \Tymon\JWTAuth\Exceptions\TokenBlacklistedException) {
+                        return response()->json([
+                            'status' => false,
+                            'response' => 'TOKEN_BLACKLISTED'
+                        ],401);
+                    }
+                    if ($exception->getMessage() === 'Token not provided') {
+                        return response()->json([
+                            'status' => false,
+                            'response' => 'Token not provided'
+                        ],400);
+                    }
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'response' => $e->getMessage()
+                    ],$e->getCode());
+                }
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'response' => 'Missing expected params. Hint: email or password!'
+            ],400);
+        }
+    }
 }
