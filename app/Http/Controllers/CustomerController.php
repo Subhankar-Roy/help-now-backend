@@ -1,43 +1,166 @@
-]<?php
+<?php
 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use App\CustomerAccountSettings;
+use App\CustomerPaymentSettings;
+use App\CustomerPropertyInformation;
 use App\DemographicsInformation;
 use App\ProfessionalInformation;
-use App\CustomerPaymentSettings;
 use App\PersonalInformation;
-use App\CustomerPropertyInformation;
-use App\CustomerAccountSettings;
 use App\User;
 use Validator;
 use DB;
+use globalHelper;
+use Carbon\Carbon;
+
 
 class CustomerController extends Controller
-{
+{   
+    protected $user_type = '3'; // Registered User
+    protected $registration_type = '1'; // Registered using email and password
+    
+    /**
+     * Save the customer who is registering with email and password.
+     * @param Illuminate/Http/Request $request
+     * @return json
+     */
+    public function store(Request $request){
+        try{
+            $validator = Validator::make($request->all(), [
+                'first_name'   => 'required|max:255',
+                'last_name'    => 'required|max:255',
+                'email'        => 'required|email|unique:users|max:255',
+                'password'     => 'required|min:6',
+                'confpassword' => 'required|min:6|same:password',
+                'phone'        => 'required|numeric|min:10',
+                'zip'          => 'required|numeric'
+            ]);
+
+            if ($validator->fails()){
+                return response()->json([
+                    'status' => false,
+                    'response' => $validator->errors(),
+                    'message'  =>'Please provide required fields properly.'
+                ],400);
+            }
+
+            DB::beginTransaction();
+            $createCustomer = new User();
+            $createCustomer->email                 = trim($request->email);
+            $createCustomer->email_verified_at     = now();
+            $createCustomer->user_type             = 3;
+            $createCustomer->registration_type     = 1;
+            $createCustomer->password              = bcrypt($request->password);
+            if($createCustomer->save()){
+                $customerInfo = new PersonalInformation();
+                $customerInfo->user_id        = $createCustomer->id;
+                $customerInfo->custom_user_id = unique_id_generator('C', 'USA');
+                $customerInfo->first_name     = trim($request->first_name);
+                $customerInfo->middle_name    = $request->has('middle_name') ? $request->middle_name : NULL;
+                $customerInfo->last_name      = trim($request->last_name);
+                $customerInfo->phone          = trim($request->phone);
+                $customerInfo->street         = $request->has('street')? trim($request->street) : NULL;
+                $customerInfo->po             = $request->has('po')? trim($request->po) :  NULL;
+                $customerInfo->city           = $request->has('city')? trim($request->city) :  NULL;
+                $customerInfo->state          = $request->has('state')? trim($request->state) :  NULL;
+                $customerInfo->zip            = trim($request->zip);
+                //$customerInfo->additional_address_info =$request->has('add_info')? trim($request->add_info) :  NULL;
+                if($customerInfo->save()){
+                    DB::commit();
+                    return response()->json([
+                        'status' => true,
+                        'message'  => "User Created Successfully."
+
+                    ],201);
+                }else{
+                    DB::rollback();
+                    return response()->json([
+                        'status' => false,
+                        'message' => "Something went worng! Try again!"
+                    ],400);
+                }
+            }else{
+                DB::rollback();
+                return response()->json([
+                    'status' => false,
+                    'message' => "Something went worng! Try again!"
+                ],400);
+            }
+        }catch(\Exception $e){
+            DB::rollback();
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage(),
+                'message' => "Something went worng! Try again!"
+            ],$e->getCode()); 
+        }
+    }
+
+    /**
+     * Method for login customer
+     * @param Illuminate/Http/Request $request
+     * @return \Illuminate\Http\Response
+    */
+    public function login(Request $request){
+        try{
+            $user = User::where('email', trim($request->email))->first();
+            if($user ){
+                if($user->user_type==3){
+                    if (Hash::check($request->password, $user->password)) {
+                        $credentials = $request->only('email', 'password');
+                        //$token = JWTAuth::attempt($credentials);
+                        return response()->json([
+                            'status' => true,
+                            //'token' => $token,
+                            'message' => "User Loggedin Successfully."
+                        ],200);
+                    }else{
+                        return response()->json([
+                            'status' => false,
+                            'message' => "Password Mismatch."
+                        ],400);
+                    }
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'message' => "This Email Id Is Not Registered As A Customer."
+                    ],400);  
+                }
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => "This Email Id Is Not Registered."
+                ],400);  
+            }
+        }catch(\Exception $e){
+            return response()->json([
+                'status' => false,
+                'response' => $e->getMessage(),
+                'message' => "Something went worng! Try again!"
+            ],$e->getCode());
+        }
+    }
+
     /**
      * Methods to update and save customer's demographic data
-     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
-     */
+    */
     public function saveDemographicinfo(Request $request){
         try{
-            $demographicInfo=DemographicsInformation::where('user_id',$request->userId)->first();
             DB::beginTransaction();
-            if(count($demographicInfo) >0){
-                $saveDemographics=DemographicsInformation::find($demographicInfo->id);
-            }else{
-                $saveDemographics = new DemographicsInformation();
-                $saveDemographics->user_id = $request->userId;
-            }
-            $saveDemographics->language = (isset($request->language))? trim($request->language) : "";
-            $saveDemographics->gender =(isset($request->gender))? trim($request->gender) : "";
-            $saveDemographics->birthdate = (isset($request->birthdate))? trim($request->birthdate) : "";
-            $saveDemographics->ethnicity =  (isset($request->ethnicity))? trim($request->ethnicity) : "";
-            $saveDemographics->relationship =  (isset($request->relationship))? trim($request->relationship) : "";
-            $saveDemographics->education =  (isset($request->education))? trim($request->education) : "";
-            $saveDemographics->occupation =  (isset($request->occupation))? trim($request->occupation) : "";
+            $saveDemographics = DemographicsInformation::updateOrCreate(['user_id' => $request->userId]);
+            $saveDemographics->language     = $request->has('language')? trim($request->language) : NULL;
+            $saveDemographics->gender       = $request->has('gender')? trim($request->gender) : NULL;
+            $saveDemographics->birthdate    = $request->has('birthdate')? trim($request->birthdate) : NULL;
+            $saveDemographics->ethnicity    = $request->has('ethnicity')? trim($request->ethnicity) : NULL;
+            $saveDemographics->relationship = $request->has('relationship')? trim($request->relationship) : NULL;
+            $saveDemographics->education    = $request->has('education')? trim($request->education) : NULL;
+            $saveDemographics->occupation   = $request->has('occupation')? trim($request->occupation) : NULL;
             if($saveDemographics->save()){
                 DB::commit();
                 return response()->json([
@@ -51,13 +174,13 @@ class CustomerController extends Controller
                     'message' => "Something went worng! Try again!"
                 ],400);
             }
-        }catch(Exception $error){
+        }catch(\Exception $e){
             DB::rollback();
             return response()->json([
                 'status' => false,
-                'response' =>$error,
+                'response' => $e->getMessage(),
                 'message' => "Something went worng! Try again!"
-            ],500);
+            ],$e->getCode());
         }
     }
 
@@ -78,15 +201,20 @@ class CustomerController extends Controller
                     'message' => "Please Fill Demographics Information."
                 ],200);
             }
-        }catch(Exception $error){
+        }catch(\Exception $e){
             return response()->json([
                 'status' => false,
-                'response' =>$error,
+                'response' => $e->getMessage(),
                 'message' => "Something went worng! Try again!"
-            ],500);
+            ],$e->getCode());
         }
     }
 
+    /**
+     * Methods to update and save customer's professional information
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+    */
     public function saveProfessionalinfo(Request $request){
         try{
             $validator = Validator::make($request->all(), [
@@ -105,23 +233,17 @@ class CustomerController extends Controller
                 ],400);
             }
 
-            $professionalInfo=ProfessionalInformation::where('user_id',$request->userId)->first();
             DB::beginTransaction();
-            if(count($professionalInfo) >0){
-                $saveProfessionalinfo=ProfessionalInformation::find($professionalInfo->id);
-            }else{
-                $saveProfessionalinfo = new ProfessionalInformation();
-                $saveProfessionalinfo->user_id = $request->userId;
-            }
-            $saveProfessionalinfo->employer_name=(isset($request->employer_name))? trim($request->employer_name) : "";
-            $saveProfessionalinfo->designation=(isset($request->designation))? trim($request->designation) : "";
-            $saveProfessionalinfo->phone=(isset($request->phone))? trim($request->phone) : "";
-            $saveProfessionalinfo->email=(isset($request->email))? trim($request->email) : "";
-            $saveProfessionalinfo->street=(isset($request->street))? trim($request->street) : "";
-            $saveProfessionalinfo->po=(isset($request->po))? trim($request->po) : "";
-            $saveProfessionalinfo->city=(isset($request->city))? trim($request->city) : "";
-            $saveProfessionalinfo->state=(isset($request->state))? trim($request->state) : "";
-            $saveProfessionalinfo->zip=(isset($request->zip))? trim($request->zip) : "";
+            $saveProfessionalinfo=ProfessionalInformation::updateOrCreate(['user_id' => $request->userId]);
+            $saveProfessionalinfo->employer_name = $request->has('employer_name')? trim($request->employer_name) : NULL;
+            $saveProfessionalinfo->designation   = $request->has('designation')? trim($request->designation) : NULL;
+            $saveProfessionalinfo->phone         = $request->has('phone')? trim($request->phone) : NULL;
+            $saveProfessionalinfo->email         = $request->has('email')? trim($request->email) : NULL;
+            $saveProfessionalinfo->street        = $request->has('street')? trim($request->street) : NULL;
+            $saveProfessionalinfo->po            = $request->has('po')? trim($request->po) : NULL;
+            $saveProfessionalinfo->city          = $request->has('city')? trim($request->city) : NULL;
+            $saveProfessionalinfo->state         = $request->has('state')? trim($request->state) : NULL;
+            $saveProfessionalinfo->zip           = $request->has('zip')? trim($request->zip) : NULL;
             if($saveProfessionalinfo->save()){
                 DB::commit();
                 return response()->json([
@@ -135,13 +257,13 @@ class CustomerController extends Controller
                     'message' => "Something went worng! Try again!"
                 ],400);
             }
-        }catch(Exception $error){
-            DB::rollback();
+        }catch(\Exception $e){
+             DB::rollback();
             return response()->json([
                 'status' => false,
-                'response' => $error,
+                'response' => $e->getMessage(),
                 'message' => "Something went worng! Try again!"
-            ],500);
+            ],$e->getCode());
         }
     }
 
@@ -162,16 +284,71 @@ class CustomerController extends Controller
                     'message' => "Please Fill Demographics Information."
                 ],200);
             }
-        }catch(Exception $error){
+        }catch(\Exception $e){
             return response()->json([
                 'status' => false,
-                'response' =>$error,
+                'response' => $e->getMessage(),
                 'message' => "Something went worng! Try again!"
-            ],500);
+            ],$e->getCode());
         }
     }
 
-    public function getPaymentinfo(Request $request){
+    /**
+     * Methods to update and save customer's payment information
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+    */
+    public function savePaymentinfo(Request $request){
+        try{
+            $validator = Validator::make($request->all(), [
+                'street'       => 'required',
+                'city'         => 'required',
+                'zip'          => 'required|numeric'
+            ]);
+
+            if ($validator->fails()){
+                return response()->json([
+                    'status' => false, 
+                    'response' => $validator->messages(),
+                    'message'  =>'Please provide required fields.'
+                ],400);
+            }
+
+            DB::beginTransaction();
+            $savePaymentinfo=CustomerPaymentSettings::updateOrCreate(['user_id' => $request->userId]);
+            $savePaymentinfo->name          = $request->has('$request->name')? trim($request->name) : NULL;
+            $savePaymentinfo->property_type = $request->has('property_type')? trim($request->property_type) : NULL;
+            $savePaymentinfo->street        = $request->has('street')? trim($request->street) : NULL;
+            $savePaymentinfo->po            = $request->has('po')? trim($request->po) : NULL;
+            $savePaymentinfo->city          = $request->has('city')? trim($request->city) : NULL;
+            $savePaymentinfo->state         = $request->has('state')? trim($request->state) : NULL;
+            $savePaymentinfo->zip           = $request->has('zip')? trim($request->zip) : NULL;
+            $savePaymentinfo->area          = $request->has('area')? trim($request->area) : NULL;
+            $savePaymentinfo->area_unit     = $request->has('area_unit')? trim($request->area_unit) : NULL;
+            if($savePaymentinfo->save()){
+                DB::commit();
+                return response()->json([
+                    'status' => true,
+                    'message'  => "Prayment information saved successfully."
+                ],200);
+            }else{
+                DB::rollback();
+                return response()->json([
+                    'status' => false,
+                    'message' => "Something went worng! Try again!"
+                ],400);
+            }
+        }catch(\Exception $e){
+             DB::rollback();
+            return response()->json([
+                'status' => false,
+                'response' => $e->getMessage(),
+                'message' => "Something went worng! Try again!"
+            ],$e->getCode());
+        }
+    }
+
+    public function getPaymentinfo(){
         try{
             $getprofessionalInfo=CustomerPaymentSettings::where('user_id',$request->userId)->first();
             if(count($getprofessionalInfo) >0){
@@ -188,119 +365,149 @@ class CustomerController extends Controller
                     'message' => "Please Fill Payment Settings."
                 ],200);
             }
-        }catch(Exception $error){
+        }catch(\Exception $e){
             return response()->json([
                 'status' => false,
-                'response' =>$error,
+                'response' => $e->getMessage(),
                 'message' => "Something went worng! Try again!"
-            ],500);
+            ],$e->getCode());
         }
     }
 
-    public function savePaymentinfo(Request $request){
+    /**
+     * Methods save customer's property information
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+    */
+    public function createProperty(Request $request){
         try{
-            $validator = Validator::make($request->all(), [
-                'street'       => 'required',
-                'city'         => 'required',
-                'zip'          => 'required|numeric'
-            ]);
-
-            if ($validator->fails()){
-                return response()->json([
-                    'status' => false,
-                    'response' => $validator->messages(),
-                    'message'  =>'Please provide required fields.'
-                ],400);
-            }
-
-            $paymentInfo=CustomerPaymentSettings::where('user_id',$request->userId)->first();
             DB::beginTransaction();
-            if(count($paymentInfo) >0){
-                $savePaymentinfo=CustomerPaymentSettings::find($paymentInfo->id);
-            }else{
-                $savePaymentinfo = new CustomerPaymentSettings();
-                $savePaymentinfo->user_id = $request->userId;
-            }
-            $savePaymentinfo->name=(isset($request->name))? trim($request->name) : "";
-            $savePaymentinfo->property_type=(isset($request->property_type))? trim($request->property_type) : "";
-            $savePaymentinfo->street=(isset($request->street))? trim($request->street) : "";
-            $savePaymentinfo->po=(isset($request->po))? trim($request->po) : "";
-            $savePaymentinfo->city=(isset($request->city))? trim($request->city) : "";
-            $savePaymentinfo->state=(isset($request->state))? trim($request->state) : "";
-            $savePaymentinfo->zip=(isset($request->zip))? trim($request->zip) : "";
-            $savePaymentinfo->area=(isset($request->area))? trim($request->area) : "";
-            $savePaymentinfo->area_unit=(isset($request->area_unit))? trim($request->area_unit) : "";
-            if($savePaymentinfo->save()){
+            $saveProperty = new CustomerPropertyInformation();
+            $saveProperty->user_id       = $request->user_id;
+            $saveProperty->name          = $request->name;
+            $saveProperty->property_type = $request->property_type;
+            $saveProperty->street        = $request->street;
+            $saveProperty->po            = $request->po;
+            $saveProperty->city          = $request->city;
+            $saveProperty->state         = $request->state;
+            $saveProperty->zip           = $request->zip;
+            $saveProperty->area          = $request->area;
+            $saveProperty->area_unit     = $request->area_unit;
+            if($saveProperty->save()){
                 DB::commit();
                 return response()->json([
                     'status' => true,
-                    'message'  => "Professional information saved successfully."
+                    'message'  => "Property information saved successfully."
                 ],200);
             }else{
                 DB::rollback();
                 return response()->json([
                     'status' => false,
-                    'message' => "Something went worng! Try again!"
+                    'response' => "Something went worng! Try again!"
                 ],400);
             }
-        }catch(Exception $error){
-            DB::rollback();
+        }catch(\Exception $e){
+             DB::rollback();
             return response()->json([
                 'status' => false,
-                'response' => $error,
+                'response' => $e->getMessage(),
                 'message' => "Something went worng! Try again!"
-            ],500);
+            ],$e->getCode());
         }
     }
 
-    public function createProperty(Request $request){
-        $saveProperty = new CustomerPropertyInformation();
-        $saveProperty->user_id=$request->user_id;
-        $saveProperty->name=$request->name;
-        $saveProperty->property_type=$request->property_type;
-        $saveProperty->street=$request->street;
-        $saveProperty->po=$request->po;
-        $saveProperty->city=$request->city;
-        $saveProperty->state=$request->state;
-        $saveProperty->zip=$request->zip;
-        $saveProperty->area=$request->area;
-        $saveProperty->area_unit=$request->area_unit;
-        if($saveProperty->save()){
-
-        }else{
-
-        }
-    }
-
+    /**
+     * Methods update customer's property information
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+    */
     public function updateProperty(Request $request){
         try{
-            $getProperty=CustomerPaymentSettings::where('user_id',$request->userId)->where('id',$request->propertyId)->first();
+            DB::beginTransaction();
+            $getProperty=CustomerPropertyInformation::where('user_id',$request->userId)->where('id',$request->propertyId)->first();
             if(count($paymentInfo) >0){
-                $updateProperty=CustomerPaymentSettings::find($paymentInfo->id);
-                $updateProperty->user_id=$request->user_id;
-                $updateProperty->name=$request->name;
-                $updateProperty->property_type=$request->property_type;
-                $updateProperty->street=$request->street;
-                $updateProperty->po=$request->po;
-                $updateProperty->city=$request->city;
-                $updateProperty->state=$request->state;
-                $updateProperty->zip=$request->zip;
-                $updateProperty->area=$request->area;
-                $updateProperty->area_unit=$request->area_unit;
+                $updateProperty=CustomerPropertyInformation::find($paymentInfo->id);
+                $updateProperty->user_id       = $request->user_id;
+                $updateProperty->name          = $request->name;
+                $updateProperty->property_type = $request->property_type;
+                $updateProperty->street        = $request->street;
+                $updateProperty->po            = $request->po;
+                $updateProperty->city          = $request->city;
+                $updateProperty->state         = $request->state;
+                $updateProperty->zip           = $request->zip;
+                $updateProperty->area          = $request->area;
+                $updateProperty->area_unit     = $request->area_unit;
                 if($updateProperty->save()){
-
+                    DB::commit();
+                    return response()->json([
+                        'status' => true,
+                        'message'  => "Property information updated successfully."
+                    ],200);
                 }else{
-
+                    DB::rollback();
+                    return response()->json([
+                        'status' => false,
+                        'response' => "Something went worng! Try again!"
+                    ],400);
                 }
             }else{
-
+                 DB::rollback();
+                return response()->json([
+                    'status' => false,
+                    'response' => "This property information is not available!"
+                ],400);
             }
-        }catch(Exception $error){
+        }catch(\Exception $e){
+             DB::rollback();
+            return response()->json([
+                'status' => false,
+                'response' => $e->getMessage(),
+                'message' => "Something went worng! Try again!"
+            ],$e->getCode());
         }  
     }
 
+    /**
+     * Methods delete customer's payment information
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+    */
     public function deleteProperty(Request $request){
-    }
-    
+        try{
+            DB::beginTransaction();
+            $propertyId=trim($requst->property_id);
 
+            $property =CustomerPropertyInformation::find($propertyId);
+            if($property->delete()){
+                DB::commit();
+                return response()->json([
+                    'status'   => true,
+                    'response' => "Success",
+                    'message' => "Property deleted successfully."
+                ],200); 
+            }else{
+                DB::rollback();
+                return response()->json([
+                    'status'   => false,
+                    'response' => "Fail",
+                    'message' => "Property can not be deleted. Try Again."
+                ],400);
+            }
+        }catch(\Exception $e){
+            DB::rollback();
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage(),
+                'message' => "Something went worng! Try again!"
+            ],$e->getCode()); 
+        }
+    }
+
+    public function getallProperty(){
+
+    }
+
+    public function getPropertyinfo(){
+        
+    }
 }

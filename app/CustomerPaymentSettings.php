@@ -4,9 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CustomerAccountSettings extends Model
+class CustomerPaymentSettings extends Model
 {
-    protected $table = 'helpnow_customer_account_settings';
+    protected $table = 'helpnow_customer_payment_settings';
 
     /**
      * The attributes that are mass assignable.

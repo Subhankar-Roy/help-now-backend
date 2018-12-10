@@ -23,9 +23,20 @@ Route::get('ping', function() {
     return 'working....';
 });
 
-Route::post('create', 'UserController@storeCustomer');
-Route::post('login', 'UserController@customerlogin');
-Route::get('fetch-demographyinfo', 'CustomerController@getDemographicinfo');
-Route::post('update-demographyinfo', 'CustomerController@saveDemographicinfo');
-Route::get('fetch-professionalinfo', 'CustomerController@getProfessionalinfo');
-Route::post('update-professionalinfo', 'CustomerController@saveProfessionalinfo');
+Route::post('create', 'CustomerController@store');
+Route::post('login', 'CustomerController@login');
+Route::get('fetch/demographyinfo', 'CustomerController@getDemographicinfo');
+Route::post('update/demographyinfo', 'CustomerController@saveDemographicinfo');
+Route::get('fetch/professionalinfo', 'CustomerController@getProfessionalinfo');
+Route::post('update/professionalinfo', 'CustomerController@saveProfessionalinfo');
+Route::get('fetch/paymentinfo', 'CustomerController@getPaymentinfo');
+Route::post('update/paymentinfo', 'CustomerController@savePaymentinfo');
+Route::post('save/propertyinfo', 'CustomerController@createProperty');
+Route::post('update/propertyinfo', 'CustomerController@updateProperty');
+Route::post('delete/propertyinfo', 'CustomerController@deleteProperty');
+Route::post('fetch/allproperty', 'CustomerController@getallProperty');
+Route::post('fetch/propertyinfo', 'CustomerController@getPropertyinfo');
+
+
+
+

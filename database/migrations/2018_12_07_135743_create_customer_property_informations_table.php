@@ -26,7 +26,7 @@ class CreateCustomerPropertyInformationsTable extends Migration
             $table->string('zip')->nullable();
             $table->string('area')->nullable();
             $table->string('area_unit')->nullable();
-            $table->string('deleted_at')->nullable();
+            $table->softDeletes();
             $table->timestamps();
             
         });

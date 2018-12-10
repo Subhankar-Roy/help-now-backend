@@ -15,6 +15,13 @@ class User extends Authenticatable implements JWTSubject
     protected $table = 'users';
 
     /**
+     * For softdelete
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
