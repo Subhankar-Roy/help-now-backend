@@ -106,43 +106,7 @@ class CustomerController extends Controller
      * @return \Illuminate\Http\Response
     */
     public function login(Request $request){
-        try{
-            $user = User::where('email', trim($request->email))->first();
-            if($user ){
-                if($user->user_type==3){
-                    if (Hash::check($request->password, $user->password)) {
-                        $credentials = $request->only('email', 'password');
-                        //$token = JWTAuth::attempt($credentials);
-                        return response()->json([
-                            'status' => true,
-                            //'token' => $token,
-                            'message' => "User Loggedin Successfully."
-                        ],200);
-                    }else{
-                        return response()->json([
-                            'status' => false,
-                            'message' => "Password Mismatch."
-                        ],400);
-                    }
-                }else{
-                    return response()->json([
-                        'status' => false,
-                        'message' => "This Email Id Is Not Registered As A Customer."
-                    ],400);  
-                }
-            }else{
-                return response()->json([
-                    'status' => false,
-                    'message' => "This Email Id Is Not Registered."
-                ],400);  
-            }
-        }catch(\Exception $e){
-            return response()->json([
-                'status' => false,
-                'response' => $e->getMessage(),
-                'message' => "Something went worng! Try again!"
-            ],$e->getCode());
-        }
+        return User::userAuthentication($request);
     }
 
     /**
