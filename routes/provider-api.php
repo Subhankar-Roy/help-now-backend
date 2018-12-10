@@ -25,7 +25,7 @@ Route::get('ping', function() {
 /**
  * get the authenticated user type from jwt authentication
  */
-Route::middleware('jwt.auth')->get('users', function () {
+Route::middleware('jwt.auth')->get('/user', function () {
     return auth('api')->user();
 });
 Route::post('/sign-up', 'ProviderController@signUp');
