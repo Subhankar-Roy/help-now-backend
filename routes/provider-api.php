@@ -30,3 +30,4 @@ Route::middleware('jwt.auth')->get('/user', function () {
 });
 Route::post('/sign-up', 'ProviderController@signUp');
 Route::post('/login', 'ProviderController@login');
+Route::post('/forgot-password', 'ProviderController@postPassowordRecovery');

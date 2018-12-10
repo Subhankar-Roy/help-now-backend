@@ -11,6 +11,8 @@ use Carbon\Carbon;
 use App\PersonalInformation;
 use App\ProviderOrganization;
 use DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ForgotPassword;
 
 class ProviderController extends Controller
 {
@@ -103,5 +105,13 @@ class ProviderController extends Controller
      */
     public function login(Request $request) {
         return User::userAuthentication($request);
+    }
+    /**
+     * This function will send emails if user forgets its password
+     * @param Illuminate/Http/Request $request
+     * @return null
+     */
+    public function postPassowordRecovery(Request $request) {
+        // Mail::to($request->user())->send(new ForgotPassword($order));
     }
 }
