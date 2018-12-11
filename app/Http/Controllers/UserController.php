@@ -46,6 +46,7 @@ class UserController extends Controller{
                         if($getUser->user_type==1){ $usertype="superadmin"; }elseif($getUser->user_type==2){ $usertype="admin"; }elseif($getUser->user_type==3){ $usertype="customer"; }elseif($getUser->user_type==4){ $usertype="guest"; }elseif($getUser->user_type==5){ $usertype="provider"; }elseif($getUser->user_type==5){ $usertype="technician"; }else{ $usertype="user"; }
                         $resetpasslink="reset-password/user/".$usertype."/".$token;
                         return $sendResetpassword=Mail::to($getUser)->send(new ForgotPassword($getUser,$token,$resetpasslink));
+
                     }else{
                         return response()->json([
                             'status'   => false,

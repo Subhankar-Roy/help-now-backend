@@ -49,7 +49,9 @@ class ForgotPassword extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.forgotpassword');
+        return $this->view('emails.forgotpassword')->with([
+                        'firstname' => $this->user->first_name,
+                    ]);
         //return $this->text($this->resetPasswordLink);
     }
 }

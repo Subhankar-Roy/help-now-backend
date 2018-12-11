@@ -38,14 +38,14 @@
 					<table border="0" cellpadding="0" cellspacing="0" align="center" bgcolor="#FFFFFF" width="560" style="border-collapse: collapse; border-spacing: 0; padding: 0; width: inherit; max-width: 560px; margin-top:6vw; " class="container">
 						<tr>
 							<td align="center" valign="middle" style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 3.25%; padding-right: 3.25%; width: 87.5%; text-align:center; font-size: 18px; font-weight: Normal; line-height: 130%;padding-top: 25px;color: #000000;font-family: 'Rubik', sans-serif !important; class="header">
-								<img border="0" vspace="0" hspace="0" style="padding: 0; vertical-align:middle; margin: 0; margin-right:15px; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; border: none; display: inline-block;color: #000000;" src="images/logo.png" alt="Logo" title="Logo"
+								<img border="0" vspace="0" hspace="0" style="padding: 0; vertical-align:middle; margin: 0; margin-right:15px; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; border: none; display: inline-block;color: #000000;" src="http://techprostudio.com/projects/helpnow/html/images/logo.png" alt="Logo" title="Logo"
 								 /> 
 			                    <br><br>
 							</td>
 						</tr>
 						<tr>
 			    			<td align="left" valign="top" style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 17px; font-weight: 400; line-height: 160%; padding-top: 25px; color: #000000; font-family: 'Rubik', sans-serif !important;" class="paragraph">
-								Hi {{ $fname }},
+								Hi {{ $firstname }},
 							</td>
 			      		</tr>
 			        	<tr>
