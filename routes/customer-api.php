@@ -24,7 +24,7 @@ Route::get('ping', function() {
 });
 
 Route::post('create', 'CustomerController@store');
-Route::post('login', 'CustomerController@login');
+// Route::post('login', 'CustomerController@login');
 
 Route::group(['middleware' => ['jwt.auth']], function () {
 	Route::get('fetch/personalinfo', 'CustomerController@getPersonalinfo');

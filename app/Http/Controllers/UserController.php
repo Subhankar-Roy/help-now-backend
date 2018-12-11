@@ -16,10 +16,10 @@ use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller{
     /**
-     * This function signs up one provider
+     * This function sign in one user
      * @param Illuminate/Http/Request $request
-     * @return Json
-    */
+     * @return json
+     */
     public function requestUpdatepassword(Request $request){
         try{
             $validator = Validator::make($request->all(),[
@@ -133,5 +133,12 @@ class UserController extends Controller{
                 'response' => $e->getMessage()
             ],$e->getCode()); 
         }
+    }
+    /** This function signs up one provider
+    * @param Illuminate/Http/Request $request
+    * @return Json
+    */   
+    public function postLogin(Request $request) {
+        return User::userAuthentication($request);
     }
 }

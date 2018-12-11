@@ -95,9 +95,9 @@ class ProviderController extends Controller
      * @param Illuminate/Http/Request $request
      * @return json
      */
-    public function login(Request $request) {
-        return User::userAuthentication($request);
-    }
+    // public function login(Request $request) {
+    //     return User::userAuthentication($request);
+    // }
     /**
      * This function will send emails if user forgets its password
      * @param Illuminate/Http/Request $request

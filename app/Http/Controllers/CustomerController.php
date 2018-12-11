@@ -36,7 +36,7 @@ class CustomerController extends Controller
                 'email'            => 'required|email|unique:users|max:255',
                 'password'         => 'required|min:8',
                 'confirm_password' => 'required|min:8|same:password',
-                'phone'            => 'required|numeric|min:10',
+                'mobile_phone'     => 'required|numeric|min:10',
                 'zip'              => 'required|numeric|min:5'
             ]);
 
@@ -61,7 +61,7 @@ class CustomerController extends Controller
                 $customerInfo->first_name     = trim($request->first_name);
                 $customerInfo->middle_name    = $request->has('middle_name') ? $request->middle_name : NULL;
                 $customerInfo->last_name      = trim($request->last_name);
-                $customerInfo->phone          = trim($request->phone);
+                $customerInfo->phone          = trim($request->mobile_phone);
                 $customerInfo->street         = $request->has('street')? trim($request->street) : NULL;
                 $customerInfo->po             = $request->has('po')? trim($request->po) :  NULL;
                 $customerInfo->city           = $request->has('city')? trim($request->city) :  NULL;
@@ -72,8 +72,11 @@ class CustomerController extends Controller
                     DB::commit();
                     return response()->json([
                         'status' => true,
-                        'response'  => "User Created Successfully."
-                    ],201);
+                        'response' => [
+                            'response' => 'Successfully saved record!',
+                            'metadata' => User::userAuthentication($request)
+                        ]
+                    ],200);
                 }else{
                     DB::rollback();
                     return response()->json([

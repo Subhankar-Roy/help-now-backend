@@ -22,6 +22,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('ping', function() {
     return 'working....';
 });
-
 Route::post('user/request/updatepassword', 'UserController@requestUpdatepassword');
 Route::post('reset-password/user/{usertype}/{token}', 'UserController@passwordUpdate');
+Route::post('/login', 'UserController@postLogin');
