@@ -26,6 +26,7 @@ class CreateProfessionalInformationsTable extends Migration
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('zip')->nullable();
+            $table->timestamps();
         });
 
     }

@@ -26,6 +26,7 @@ class CreateCustomerPaymentSettingsTable extends Migration
             $table->string('po')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
+            $table->string('zip')->nullable();
             $table->string('paypal_account')->nullable();
             $table->string('venmo_account')->nullable();
             $table->timestamps();

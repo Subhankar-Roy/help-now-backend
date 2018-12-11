@@ -38,8 +38,8 @@ Route::group(['middleware' => ['jwt.auth']], function () {
 	Route::post('save/propertyinfo', 'CustomerController@createProperty');
 	Route::post('update/propertyinfo', 'CustomerController@updateProperty');
 	Route::post('delete/propertyinfo', 'CustomerController@deleteProperty');
-	Route::post('fetch/allproperty', 'CustomerController@getallProperty');
+	Route::get('fetch/allproperty', 'CustomerController@getallProperty');
 	Route::post('fetch/propertyinfo', 'CustomerController@getPropertyinfo');
 	Route::post('update/accountsettings', 'CustomerController@saveAccountsettings');
-	Route::post('fetch/accountsettings', 'CustomerController@getAccountsettings');
+	Route::get('fetch/accountsettings', 'CustomerController@getAccountsettings');
 });
