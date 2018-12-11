@@ -29,9 +29,9 @@ class ProviderController extends Controller
             'last_name'             => 'required',
             'mobile_phone'          => 'bail|required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
             'email'                 => 'bail|required|unique:users|email',
-            'password'              => 'required|min:6',
+            'password'              => 'required|min:8',
             'confirm_password'      => 'required|same:password',
-            'name_of_organization'  => 'required'
+            'zip'                   => 'required|numeric'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -57,24 +57,16 @@ class ProviderController extends Controller
                     $p_info->middle_name    = $request->has('middle_name') ? $p_info->middle_name : null;
                     $p_info->last_name      = $request->last_name;
                     $p_info->phone          = $request->mobile_phone;
+                    $p_info->zip            = $request->zip;
                     if ($p_info->save()) {
-                        // save in organization info
-                        $o_details                    = new ProviderOrganization();
-                        $o_details->user_id           = $user->id;
-                        $o_details->organization_name = $request->name_of_organization;
-                        if ($o_details->save()) {
-                            DB::commit();
-                            return response()->json([
-                                'status'   => true,
-                                'response' => 'Successfully saved record!'
-                            ],200);
-                        } else {
-                            DB::rollback();
-                            return response()->json([
-                                'status'   => false,
-                                'response' => 'Failed while saving organization info!'
-                            ],500);
-                        }
+                        DB::commit();
+                        return response()->json([
+                            'status'   => true,
+                            'response' => [
+                                'response' => 'Successfully saved record!',
+                                'metadata' => User::userAuthentication($request)
+                            ]
+                        ],200);
                     } else {
                         DB::rollback();
                         return response()->json([
