@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Mail;
-
+use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -21,9 +21,25 @@ class ForgotPassword extends Mailable
      *
      * @return void
      */
-    public function __construct($resetLink = null)
+    /*public function __construct($resetLink = null)
     {
         $this->resetPasswordLink = $resetLink;
+    }*/
+     /**
+     * The order instance.
+     *
+     * @var Order
+     */
+    protected $user;
+
+    /**
+     * Create a new message instance.
+     *
+     * @return void
+     */
+    public function __construct(User $user)
+    {
+        $this->user = $user;
     }
 
     /**
@@ -33,6 +49,7 @@ class ForgotPassword extends Mailable
      */
     public function build()
     {
-        return $this->text($this->resetPasswordLink);
+        return $this->view('emails.forgotpassword');
+        //return $this->text($this->resetPasswordLink);
     }
 }
