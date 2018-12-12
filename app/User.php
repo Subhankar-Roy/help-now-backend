@@ -82,7 +82,7 @@ class User extends Authenticatable implements JWTSubject
                 } else {
                     return response()->json([
                         'status' => false,
-                        'response' => 'Unauthorized!'
+                        'response' => 'Unauthorized! Wrong email id or password.'
                     ],401);
                 }
             } catch (\Exception $exception) {
