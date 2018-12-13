@@ -289,7 +289,7 @@ class CustomerController extends Controller
      * @return \Illuminate\Http\Response
     */
     public function saveProfessionalinfo(Request $request){
-      /*  try{*/
+        try{
             $user=$request->user();
             DB::beginTransaction();
             $saveProfessionalinfo=ProfessionalInformation::updateOrCreate(['user_id' => $user->id]);
@@ -333,13 +333,13 @@ class CustomerController extends Controller
                     'response' => "Something went worng! Try again!"
                 ],400);
             }
-        /*}catch(\Exception $e){
+        }catch(\Exception $e){
              DB::rollback();
             return response()->json([
                 'status' => false,
                 'response' => $e->getMessage(),
             ],$e->getCode());
-        }*/
+        }
     }
 
     /**
@@ -355,15 +355,15 @@ class CustomerController extends Controller
                 return response()->json([
                     'status'   => true,
                     'response' => [
-                            'demostatus'      => 1,
-                            'demographicinfo' =>  $getprofessionalInfo,
+                            'professionalstatus' => 1,
+                            'professionalinfo' =>  $getprofessionalInfo,
                     ]
                 ],200);
             }else{
                 return response()->json([
                     'status' => true,
                     'response' => [
-                            'demostatus' => 0,
+                            'professionalstatus' => 0,
                             'message'    => "Please Fill Demographics Information."
                     ]
                 ],200);
@@ -469,16 +469,16 @@ class CustomerController extends Controller
                 return response()->json([
                     'status'   => true,
                     'response' => [
-                            'demostatus' => 1,
-                            'message'    => $getpaymentInfo
+                            'paymentstatus' => 1,
+                            'paymentinfo'   => $getpaymentInfo
                     ]
                 ],200);
             }else{
                 return response()->json([
                     'status'   => true,
                     'response' => [
-                            'demostatus' => 0,
-                            'message'    => "Please Fill Payment Settings."
+                            'paymentstatus' => 0,
+                            'paymentinfo'   => "Please Fill Payment Settings."
                     ]
                 ],200);
             }

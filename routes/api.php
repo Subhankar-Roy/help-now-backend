@@ -25,3 +25,10 @@ Route::get('ping', function() {
 Route::post('user/request/updatepassword', 'UserController@requestUpdatepassword');
 Route::post('reset-password/user/{usertype}/{token}', 'UserController@passwordUpdate');
 Route::post('/login', 'UserController@postLogin');
+
+Route::get('/fetch/states', 'CommondataController@getStatevalues');
+Route::get('/fetch/ethnicity', 'CommondataController@getEthnicityvalues');
+Route::get('/fetch/languages', 'CommondataController@getLanguagevalues');
+Route::get('/fetch/relationship', 'CommondataController@getRelationshipvalues');
+Route::get('/fetch/education', 'CommondataController@getEducationvalues');
+
