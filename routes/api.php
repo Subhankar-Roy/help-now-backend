@@ -23,7 +23,8 @@ Route::get('ping', function() {
     return 'working....';
 });
 Route::post('user/request/updatepassword', 'UserController@requestUpdatepassword');
-Route::post('reset-password/user/{usertype}/{token}', 'UserController@passwordUpdate');
+Route::post('user/request/checkstatus', 'UserController@postCheckStatus');
+Route::post('reset-password/user/{token}', 'UserController@passwordUpdate');
 Route::post('/login', 'UserController@postLogin');
 
 Route::get('/fetch/states', 'CommondataController@getStatevalues');

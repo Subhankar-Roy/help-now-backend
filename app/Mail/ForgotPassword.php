@@ -10,36 +10,27 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 class ForgotPassword extends Mailable
 {
     use Queueable, SerializesModels;
-     /**
-     * The email link instance.
-     *
-     * @var resetPasswordLink
+    /**
+     * All these 3 variables needs to be passed to mailables
      */
-    public $resetPasswordLink;
+    public $user; // user instance
+    public $token; // token
+    public $resetPasswordLink; // reset password links
     /**
      * Create a new message instance.
-     *
+     * @param $user User
+     * @param $token string
+     * @param $resetpasslink string
      * @return void
      */
-    /*public function __construct($resetLink = null)
-    {
-        $this->resetPasswordLink = $resetLink;
-    }*/
-     /**
-     * The order instance.
-     *
-     * @var Order
-     */
-    protected $user;
-
-    /**
-     * Create a new message instance.
-     *
-     * @return void
-     */
-    public function __construct(User $user)
-    {
-        $this->user = $user;
+    public function __construct(User $user, $token = null, $resetpasslink = null) {
+        if (func_num_args() == 3) {
+            if($user != null && $token != null && $resetpasslink != null) {
+                $this->user              = $user;
+                $this->token             = $token;
+                $this->resetPasswordLink = $resetpasslink;
+            }
+        }
     }
 
     /**
@@ -47,11 +38,12 @@ class ForgotPassword extends Mailable
      *
      * @return $this
      */
-    public function build()
-    {
-        return $this->view('emails.forgotpassword')->with([
-                        'firstname' => $this->user->first_name,
-                    ]);
-        //return $this->text($this->resetPasswordLink);
+    public function build() {
+        $this->view('emails.forgotpassword')
+            ->with([
+                'user_details' => $this->user,
+                'token'        => $this->token,
+                'reset_link'   => env('APP_URL_FRONTEND_LOCAL').$this->resetPasswordLink
+            ]);
     }
 }

@@ -23,7 +23,7 @@ class UserController extends Controller{
     public function requestUpdatepassword(Request $request){
         try{
             $validator = Validator::make($request->all(),[
-                'email'                 => 'bail|required|email',
+                'email'  => 'bail|required|email',
             ]);
             if ($validator->fails()) {
                 return response()->json([
@@ -31,7 +31,7 @@ class UserController extends Controller{
                     'response' => $validator->errors()
                 ],400);
             }else{
-                $getUser=User::where('email',$request->email)->first();
+                $getUser=User::where('email',$request->email)->with('personal_info')->first();
                 if(!$getUser){
                     return response()->json([
                         'status'   => false,
@@ -43,10 +43,12 @@ class UserController extends Controller{
                     $updateResetPassword->email=$getUser->email;
                     $updateResetPassword->token=$token;
                     if($updateResetPassword->save()){
-                        if($getUser->user_type==1){ $usertype="superadmin"; }elseif($getUser->user_type==2){ $usertype="admin"; }elseif($getUser->user_type==3){ $usertype="customer"; }elseif($getUser->user_type==4){ $usertype="guest"; }elseif($getUser->user_type==5){ $usertype="provider"; }elseif($getUser->user_type==5){ $usertype="technician"; }else{ $usertype="user"; }
-                        $resetpasslink="reset-password/user/".$usertype."/".$token;
-                        return $sendResetpassword=Mail::to($getUser)->send(new ForgotPassword($getUser,$token,$resetpasslink));
-
+                        $resetpasslink="reset-password/user/".$token;
+                        $sendResetpassword=Mail::to($getUser)->send(new ForgotPassword($getUser,$token,$resetpasslink));
+                        return response()->json([
+                            'status'   => true,
+                            'response' => "Please check your inbox. We send you a email with a reset password link"
+                        ],200);
                     }else{
                         return response()->json([
                             'status'   => false,
@@ -114,7 +116,7 @@ class UserController extends Controller{
                                 return response()->json([
                                     'status'   => true,
                                     'response' => "Password updated successfully."
-                                ],400); 
+                                ],200); 
                             }else{
                                 DB::rollback();
                                 return response()->json([
@@ -140,5 +142,54 @@ class UserController extends Controller{
     */   
     public function postLogin(Request $request) {
         return User::userAuthentication($request);
+    }
+    /**
+     * This function returns the status of token provided
+     * @param Illuminate/Http/Request $request
+     * @return Json
+     */
+    public function postCheckStatus(Request $request) {
+        if ($request->has('token')) {
+            try {
+                $search_token = ResetPassword::where('token', $request->token)->first();
+                if ($search_token) {
+                    $server_time = getdate();
+                    $date        = $server_time['mday'];
+                    $month       = $server_time['mon'];
+                    $year        = $server_time['year'];
+                    $hour        = $server_time['hours'];
+                    $min         = $server_time['minutes'];
+                    $sec         = $server_time['seconds'];
+                    $timesnow    = $year.'-'.$month.'-'.$date.' '.$hour.':'.$min.':'.$sec;
+                    $startTime   = \Carbon\Carbon::parse($search_token->created_at);
+                    $finishTime  = \Carbon\Carbon::parse($timesnow);
+                    $timesago    = $finishTime->diffInMinutes($startTime);
+                    return response()->json([
+                        'status'   => true,
+                        'response' => [
+                            'response' => $search_token,
+                            'metadata' => [
+                                'timesago' => $timesago
+                            ]
+                        ]
+                    ],200);
+                } else {
+                    return response()->json([
+                        'status'   => false,
+                        'response' => 'Invalid token given!'
+                    ],400);  
+                }
+            } catch(\Exception $e) {
+                return response()->json([
+                    'status'   => false,
+                    'response' => $e->getMessage()
+                ],$e->getCode()); 
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'response' => 'Missing Expected param token!'
+            ],400);
+        }
     }
 }

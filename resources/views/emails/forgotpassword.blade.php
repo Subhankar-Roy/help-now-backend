@@ -44,8 +44,12 @@
 							</td>
 						</tr>
 						<tr>
-			    			<td align="left" valign="top" style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 17px; font-weight: 400; line-height: 160%; padding-top: 25px; color: #000000; font-family: 'Rubik', sans-serif !important;" class="paragraph">
-								Hi {{ $firstname }},
+							<td align="left" valign="top" style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 17px; font-weight: 400; line-height: 160%; padding-top: 25px; color: #000000; font-family: 'Rubik', sans-serif !important;" class="paragraph">
+								@if($user_details->personal_info)
+									Hi {{ $user_details->personal_info->first_name }},
+								@else 
+									Hi there,
+								@endif
 							</td>
 			      		</tr>
 			        	<tr>
@@ -58,7 +62,7 @@
 								<table border="0" cellpadding="0" cellspacing="0" align="center" style="max-width: 100%; min-width: 120px; border-collapse: collapse; border-spacing: 0; padding: 0;">
 									<tr>
 										<td align="center" valign="middle" style="padding: 12px 24px; margin: 0; text-decoration: none; border-collapse: collapse; border-spacing: 0; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px;" bgcolor="#00CCFF">
-											<a  style="text-decoration: none; color: #FFFFFF; font-family: 'Rubik', sans-serif !important; font-size: 17px; font-weight: 400; line-height: 120%;" href="#">
+											<a  style="text-decoration: none; color: #FFFFFF; font-family: 'Rubik', sans-serif !important; font-size: 17px; font-weight: 400; line-height: 120%;" href="{{ $reset_link }}">
 												Click here to reset your password
 											</a>
 										</td>

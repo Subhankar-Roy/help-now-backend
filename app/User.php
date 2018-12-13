@@ -125,4 +125,11 @@ class User extends Authenticatable implements JWTSubject
             ],400);
         }
     }
+    /**
+     * user's personal relation one to one
+     * @param null
+     */
+    public function personal_info() {
+        return $this->hasOne('App\PersonalInformation', 'user_id', 'id');
+    }
 }
