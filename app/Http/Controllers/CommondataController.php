@@ -24,7 +24,7 @@ class CommondataController extends Controller
                         'education' => $getEducations,
                         'education-count' => count($getEducations)
                     ]
-            	],400); 
+            	],200); 
 			}else{
 				return response()->json([
                 	'status'   => false,
@@ -53,7 +53,7 @@ class CommondataController extends Controller
                         'ethnicity' => $getEthnicitys,
                         'ethnicity-count' => count($getEthnicitys)
                     ]
-            	],400); 
+            	],200); 
 			}else{
 				return response()->json([
                 	'status'   => false,
@@ -82,7 +82,7 @@ class CommondataController extends Controller
                         'language' => $getLanguages,
                         'language-count' => count($getLanguages)
                     ]
-            	],400); 
+            	],200); 
 			}else{
 				return response()->json([
                 	'status'   => false,
@@ -111,7 +111,7 @@ class CommondataController extends Controller
                         'relationship' => $getRelationships,
                         'relationship-count' => count($getRelationships)
                     ]
-            	],400); 
+            	],200); 
 			}else{
 				return response()->json([
                 	'status'   => false,
@@ -140,7 +140,7 @@ class CommondataController extends Controller
                         'state' => $getStates,
                         'state-count' => count($getStates)
                     ]
-            	],400); 
+            	],200); 
 			}else{
 				return response()->json([
                 	'status'   => false,
