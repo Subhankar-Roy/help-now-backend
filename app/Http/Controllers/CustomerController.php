@@ -19,6 +19,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ForgotPassword;
 use App\Mail\VerifyEmail;
+use Crypt;
+
 
 class CustomerController extends Controller
 {   
@@ -188,7 +190,9 @@ class CustomerController extends Controller
                 'status'   => true,
                 'response' => [
                         'user'         => $user,
-                        'personalinfo' =>  $getPersonalinfo
+                        'personalinfo' => $getPersonalinfo,
+                        'username'     => strstr($user->email, '@', true),
+                        'password'     => $user->password
                 ]
             ],200);
         }catch(\Exception $e){
@@ -366,7 +370,7 @@ class CustomerController extends Controller
                     'status' => true,
                     'response' => [
                             'professionalstatus' => 0,
-                            'message'    => "Please Fill Demographics Information."
+                            'message'    => "Please Fill Professional Information."
                     ]
                 ],200);
             }
@@ -888,7 +892,7 @@ class CustomerController extends Controller
             $user=$request->user();
             $allsettings =CustomerAccountSettings::where('user_id',$user->id)->get();
             return response()->json([
-                'status'   => false,
+                'status'   => true,
                 'response' =>[
                     'settings' => $allsettings,
                 ]
