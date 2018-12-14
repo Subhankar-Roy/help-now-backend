@@ -16,7 +16,9 @@ use Validator;
 use DB;
 use globalHelper;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ForgotPassword;
+use App\Mail\VerifyEmail;
 
 class CustomerController extends Controller
 {   
@@ -50,7 +52,6 @@ class CustomerController extends Controller
             DB::beginTransaction();
             $createCustomer = new User();
             $createCustomer->email             = trim($request->email);
-            $createCustomer->email_verified_at = now();
             $createCustomer->user_type         = 3;
             $createCustomer->registration_type = 1;
             $createCustomer->password          = bcrypt($request->password);
@@ -70,6 +71,7 @@ class CustomerController extends Controller
                 //$customerInfo->additional_address_info =$request->has('add_info')? trim($request->add_info) :  NULL;
                 if($customerInfo->save()){
                     DB::commit();
+                    Mail::to($request->email)->send(new VerifyEmail($request->first_name,'verify-email/user/'.$createCustomer->id));
                     return response()->json([
                         'status' => true,
                         'response' => [

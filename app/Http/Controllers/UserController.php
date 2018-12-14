@@ -192,4 +192,79 @@ class UserController extends Controller{
             ],400);
         }
     }
+    /**
+     * verify email
+     * @param verification_id null
+     */
+    public function getVerifyEmail($verification_id = null) {
+        if ($verification_id) {
+            try {
+                $search_id = User::findOrFail($verification_id);
+                if ($search_id) {
+                    $search_id->email_verified_at = now();
+                    if ($search_id->save()) {
+                        return response()->json([
+                            'status' => true,
+                            'response' => [
+                                'response' => 'Successfully verified your email!',
+                                'metadata' => $search_id->user_type
+                            ]
+                        ],200);
+                    } else {
+                        return response()->json([
+                            'status' => false,
+                            'response' => 'Failed to verify your email. Please try again later!'
+                        ],500);
+                    }
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'response' => 'No user verification code found!'
+                    ],404);
+                }
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status'   => false,
+                    'response' => $e->getMessage() 
+                ],$e->getCode());
+            }
+        } else {
+            return response()->json([
+                'status'   => false,
+                'response' => 'Missing verification code!'
+            ],400);
+        }
+    }
+    /**
+     * check user is verified 
+     * @param request Request
+     */
+    public function postCheckUserStatus(Request $request) {
+        if ($request->has('user_id')) {
+            try {
+                $search_user = User::findOrFail($request->user_id);
+                if ($search_user) {
+                    return response()->json([
+                        'status' => true,
+                        'response' => $search_user
+                    ],200);
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'response' => 'No user found!'
+                    ],404);
+                }
+            } catch(\Exception $e) {
+                return response()->json([
+                    'status'   => false,
+                    'response' => $e->getMessage()
+                ], $e->getCode());
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'response' => 'No user id supplied!'
+            ],400);
+        }
+    }
 }

@@ -13,6 +13,7 @@ use App\ProviderOrganization;
 use DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ForgotPassword;
+use App\Mail\VerifyEmail;
 
 class ProviderController extends Controller
 {
@@ -44,7 +45,6 @@ class ProviderController extends Controller
                 // saving provider info
                 $user = new User();
                 $user->email                = $request->email;
-                $user->email_verified_at    = now();
                 $user->password             = bcrypt($request->password);
                 $user->user_type            = $this->user_type;
                 $user->registration_type    = $this->registration_type;
@@ -60,6 +60,7 @@ class ProviderController extends Controller
                     $p_info->zip            = $request->zip;
                     if ($p_info->save()) {
                         DB::commit();
+                        Mail::to($request->email)->send(new VerifyEmail($request->first_name,'verify-email/user/'.$user->id));
                         return response()->json([
                             'status'   => true,
                             'response' => [
