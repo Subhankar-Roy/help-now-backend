@@ -31,3 +31,14 @@ Route::middleware('jwt.auth')->get('/user', function () {
 Route::post('/sign-up', 'ProviderController@signUp');
 // Route::post('/login', 'ProviderController@login');
 Route::post('/forgot-password', 'ProviderController@postPassowordRecovery');
+
+Route::group(['middleware' => ['jwt.auth']], function () {
+	Route::get('fetch/personalinfo', 'ProviderController@getPersonalinfo');
+	Route::post('update/personalinfo', 'ProviderController@savePersonalInfo');
+	Route::get('fetch/organization', 'ProviderController@getOrganizatinInfo');
+	Route::post('update/organization', 'ProviderController@saveOrganizatinInfo');
+	Route::get('fetch/demographyinfo', 'ProviderController@getDemographicinfo');
+	Route::post('update/demographyinfo', 'ProviderController@saveDemographicinfo');
+	Route::get('fetch/paymentinfo', 'ProviderController@getPaymentinfo');
+	Route::post('update/paymentinfo', 'ProviderController@savePaymentinfo');
+});

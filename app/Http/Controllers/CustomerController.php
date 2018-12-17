@@ -296,6 +296,7 @@ class CustomerController extends Controller
     */
     public function saveProfessionalinfo(Request $request){
         try{
+
             $user=$request->user();
             DB::beginTransaction();
             $saveProfessionalinfo=ProfessionalInformation::updateOrCreate(['user_id' => $user->id]);
@@ -659,7 +660,7 @@ class CustomerController extends Controller
             $user=$request->user();
             $allproperty =CustomerPropertyInformation::where('user_id',$user->id)->get();
             return response()->json([
-                'status'   => false,
+                'status'   => true,
                 'response' =>[
                     'propertycount' => count($allproperty),
                     'allproperty'   => $allproperty
@@ -702,6 +703,7 @@ class CustomerController extends Controller
      * @return json
     */
     public function saveAccountsettings(Request $request){
+        //return $request->all();
         try{
             $user=$request->user();
             if($request->has('notification_text')){
@@ -857,7 +859,7 @@ class CustomerController extends Controller
                     $updateServiceSettings->user_id=$user->id;
                     $updateServiceSettings->settings_name=6;
                 }
-                $updateServiceSettings->settings = trim($request->status);
+                $updateServiceSettings->settings = trim($request->service);
                 $updateServiceSettings->save();
             }
             if($request->has('language')){
@@ -867,7 +869,7 @@ class CustomerController extends Controller
                     $updateLanguageSettings->user_id=$user->id;
                     $updateLanguageSettings->settings_name=7;
                 }
-                $updateLanguageSettings->settings = trim($request->status);
+                $updateLanguageSettings->settings = trim($request->language);
                 $updateLanguageSettings->save();
             }
             return response()->json([

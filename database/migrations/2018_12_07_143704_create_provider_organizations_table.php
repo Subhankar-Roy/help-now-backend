@@ -18,9 +18,11 @@ class CreateProviderOrganizationsTable extends Migration
             $table->unsignedInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->string('organization_name')->nullable();
+            $table->string('phone')->nullable();
             $table->date('founded_at')->nullable();
             $table->string('title')->nullable();
             $table->text('street')->nullable();
+            $table->string('po')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->integer('zip')->nullable();
