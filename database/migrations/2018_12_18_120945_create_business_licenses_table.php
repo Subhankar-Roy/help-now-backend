@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCustomerAccountSettingsTable extends Migration
+class CreateBusinessLicensesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,13 @@ class CreateCustomerAccountSettingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('helpnow_customer_account_settings', function (Blueprint $table) {
+        Schema::create('helpnow_expire_licenses', function (Blueprint $table) {
             $table->increments('id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedInteger('user_id');
-            $table->integer('settings_name')->comment('1->Notification, 2->Special Offers, 3->Privacy, 4->Posts, 5->Status, 6->Service, 7->Language,8->EIN Number, 9->W9, 10->Partner type');
-            $table->string('settings')->comment('T->Text, E->Email, S->Social, P->Phone, 0->Inactive, 1->Active');
+            $table->foreign('pest_type')->references('id')->on('helpnow_pest_catagories');
+            $table->unsignedInteger('pest_type');
+            $table->date('expier_date');
             $table->timestamps();
         });
     }
@@ -30,6 +31,6 @@ class CreateCustomerAccountSettingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('helpnow_customer_account_settings');
+        Schema::dropIfExists('helpnow_business_licenses');
     }
 }

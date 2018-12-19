@@ -6,6 +6,8 @@ use App\Ethnicity;
 use App\Language;
 use App\Relationship;
 use App\State;
+use App\PestControllMethod;
+use App\PestCatagory;
 
 
 class CommondataController extends Controller
@@ -154,5 +156,88 @@ class CommondataController extends Controller
             ],$e->getCode()); 
 		}
 	}
+
+    /**
+     * This function will fetch all pestcontroll method's
+     * @return json
+    */
+    public function getPestcontrollmethods(){
+        try{
+            $getPestControllMethods=PestControllMethod::all();
+            if($getPestControllMethods){
+                return response()->json([
+                    'status'   => true,
+                    'response' => [
+                        'pestcontroll_methods' => $getPestControllMethods,
+                        'pestcontrollmethods-count' => count($getPestControllMethods)
+                    ]
+                ],200); 
+            }else{
+                return response()->json([
+                    'status'   => false,
+                    'response' => "Try Again!"
+                ],400); 
+            }
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    /**
+     * This function will fetch main pest catagories
+     * @return json
+    */
+    public function getMainPestcatagory(){
+        try{
+            $getPestCatatory=PestCatagory::where('pest_catagory',0)->get();
+            if($getPestCatatory){
+                return response()->json([
+                    'status'   => true,
+                    'response' => [
+                        'pestcatagory' => $getPestCatatory,
+                        'pestcatagory-count' => count($getPestCatatory)
+                    ]
+                ],200); 
+            }else{
+                return response()->json([
+                    'status'   => false,
+                    'response' => "Try Again!"
+                ],400); 
+            }
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    public function getsubPestcatagory(){
+        try{
+            $getPestCatatory=PestCatagory::where('pest_catagory',0)->get();
+            if($getPestCatatory){
+                return response()->json([
+                    'status'   => true,
+                    'response' => [
+                        'pestcatagory' => $getPestCatatory,
+                        'pestcatagory-count' => count($getPestCatatory)
+                    ]
+                ],200); 
+            }else{
+                return response()->json([
+                    'status'   => false,
+                    'response' => "Try Again!"
+                ],400); 
+            }
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
 
 }

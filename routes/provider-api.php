@@ -41,4 +41,23 @@ Route::group(['middleware' => ['jwt.auth']], function () {
 	Route::post('update/demographyinfo', 'ProviderController@saveDemographicinfo');
 	Route::get('fetch/paymentinfo', 'ProviderController@getPaymentinfo');
 	Route::post('update/paymentinfo', 'ProviderController@savePaymentinfo');
+	Route::post('update/accountsettings', 'ProviderController@saveAccountsettings');
+	Route::get('fetch/accountsettings', 'ProviderController@getAccountsettings');
+	Route::post('update/pestcontrollmethod', 'ProviderController@savePestcontrollMethod');
+	Route::get('fetch/pestcontrollmethod', 'ProviderController@getPestcontrollMethod');
+	Route::post('update/pestControllecofriendlystatus', 'ProviderController@updatePestControllEcofriendlyStatus');
+	Route::get('fetch/licence/expire', 'ProviderController@getPestLicenceExpire');
+	Route::post('update/licence/expire', 'ProviderController@updatePestLicenceExpire');
+	Route::post('delete/licence/expire', 'ProviderController@deletePestLicenceExpire');
+
+	Route::get('fetch/mainpestcatagory', 'ProviderController@getPestTypeForService');
+	Route::post('update/mainpestcatagory', 'ProviderController@savePestTypeForService');
+
+	Route::get('fetch/pest/keyword', 'ProviderController@getKeyWord');
+	Route::post('update/pest/keyword', 'ProviderController@saveKeyWord');
+	Route::post('delete/pest/keyword', 'ProviderController@deleteKeyWord');
+
+	Route::get('fetch/pest/servedstate', 'ProviderController@getStateLicence');
+	Route::post('update/pest/servedstate', 'ProviderController@saveStateLicence');
+	
 });

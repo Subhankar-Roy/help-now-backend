@@ -12,6 +12,12 @@ use App\PersonalInformation;
 use App\ProviderOrganization;
 use App\DemographicsInformation;
 use App\ProviderPayment;
+use App\CustomerAccountSettings;
+use App\PestControllMethodInfo;
+use App\StateLicense;
+use App\ExpireLicense;
+use App\ProviderPestService;
+use App\PestKeyword;
 use DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ForgotPassword;
@@ -459,4 +465,672 @@ class ProviderController extends Controller
             ],$e->getCode());
         }
     }
+
+    /**
+     * Update a settings details of a provider
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function saveAccountsettings(Request $request){
+        //return $request->all();
+        try{
+            $user=$request->user();
+            if($request->has('notification_text')){
+                if(($request->notification_text)==0){
+                     $updateNotificationTextsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','T')->delete();
+                }else{
+                    $updateNotificationTextsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','T')->first();
+                    if(!$updateNotificationTextsettings){
+                        $updateNotificationTextsettings=new CustomerAccountSettings();
+                        $updateNotificationTextsettings->user_id=$user->id;
+                        $updateNotificationTextsettings->settings_name=1;
+                        $updateNotificationTextsettings->settings='T';
+                        $updateNotificationTextsettings->save();
+                    }
+                   
+                }
+            }
+            if($request->has('notification_email')){
+                if(($request->notification_email)==0){
+                     $updateNotificationEmailsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','E')->delete();
+                }else{
+                    $updateNotificationEmailsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','E')->first();
+                    if(!$updateNotificationEmailsettings){
+                        $updateNotificationEmailsettings=new CustomerAccountSettings();
+                        $updateNotificationEmailsettings->user_id=$user->id;
+                        $updateNotificationEmailsettings->settings_name=1;
+                        $updateNotificationEmailsettings->settings='E';
+                        $updateNotificationEmailsettings->save();
+                    }
+                }
+            }
+            if($request->has('notification_social')){
+                if(($request->notification_social)==0){
+                     $updateNotificationSocialsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','S')->delete();
+                }else{
+                    $updateNotificationSocialsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','S')->first();
+                    if(!$updateNotificationSocialsettings){
+                        $updateNotificationSocialsettings=new CustomerAccountSettings();
+                        $updateNotificationSocialsettings->user_id=$user->id;
+                        $updateNotificationSocialsettings->settings_name=1;
+                        $updateNotificationSocialsettings->settings='S';
+                        $updateNotificationSocialsettings->save();
+                    }
+                }
+
+            }
+            if($request->has('notification_phone')){
+                if(($request->notification_phone)==0){
+                     $updateNotificationPhonesettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','P')->delete();
+                }else{
+                    $updateNotificationPhonesettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',1)->where('settings','P')->first();
+                    if(!$updateNotificationPhonesettings){
+                        $updateNotificationPhonesettings=new CustomerAccountSettings();
+                        $updateNotificationPhonesettings->user_id=$user->id;
+                        $updateNotificationPhonesettings->settings_name=1;
+                        $updateNotificationPhonesettings->settings='P';
+                        $updateNotificationPhonesettings->save();
+                    }
+                }
+            }
+            if($request->has('specialoffer_text')){
+                if(($request->specialoffer_text)==0){
+                     $updateSpecialOfferTextsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','T')->delete();
+                }else{
+                    $updateSpecialOfferTextsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','T')->first();
+                    if(!$updateSpecialOfferTextsettings){
+                        $updateSpecialOfferTextsettings=new CustomerAccountSettings();
+                        $updateSpecialOfferTextsettings->user_id=$user->id;
+                        $updateSpecialOfferTextsettings->settings_name=2;
+                        $updateSpecialOfferTextsettings->settings='T';
+                        $updateSpecialOfferTextsettings->save();
+                    }
+                }
+                
+            }
+            if($request->has('specialoffer_email')){
+                if(($request->specialoffer_email)==0){
+                     $updateSpecialOfferEmailsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','E')->delete();
+                }else{
+                    $updateSpecialOfferEmailsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','E')->first();
+                    if(!$updateSpecialOfferEmailsettings){
+                        $updateSpecialOfferEmailsettings=new CustomerAccountSettings();
+                        $updateSpecialOfferEmailsettings->user_id=$user->id;
+                        $updateSpecialOfferEmailsettings->settings_name=2;
+                        $updateSpecialOfferEmailsettings->settings='E';
+                        $updateSpecialOfferEmailsettings->save();
+                    }
+                }
+                
+            }
+            if($request->has('specialoffer_social')){
+                if(($request->specialoffer_social)==0){
+                     $updateSpecialOfferSocialsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','S')->delete();
+                }else{
+                    $updateSpecialOfferSocialsettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','S')->first();
+                    if(!$updateSpecialOfferSocialsettings){
+                        $updateSpecialOfferSocialsettings=new CustomerAccountSettings();
+                        $updateSpecialOfferSocialsettings->user_id=$user->id;
+                        $updateSpecialOfferSocialsettings->settings_name=2;
+                        $updateSpecialOfferSocialsettings->settings='S';
+                        $updateSpecialOfferSocialsettings->save();
+                    }
+                }
+            }
+            if($request->has('specialoffer_phone')){
+                if(($request->specialoffer_phone)==0){
+                     $updateSpecialOfferPhonesettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','P')->delete();
+                }else{
+                    $updateSpecialOfferPhonesettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',2)->where('settings','P')->first();
+                    if(!$updateSpecialOfferPhonesettings){
+                        $updateSpecialOfferPhonesettings=new CustomerAccountSettings();
+                        $updateSpecialOfferPhonesettings->user_id=$user->id;
+                        $updateSpecialOfferPhonesettings->settings_name=2;
+                        $updateSpecialOfferPhonesettings->settings='P';
+                        $updateSpecialOfferPhonesettings->save();
+                    }
+                }
+            }
+            if($request->has('privacy')){
+                $updatePrivacySettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',3)->first();
+                if(!$updatePrivacySettings){
+                    $updatePrivacySettings=new CustomerAccountSettings();
+                    $updatePrivacySettings->user_id=$user->id;
+                    $updatePrivacySettings->settings_name=3;
+                }
+                $updatePrivacySettings->settings= trim($request->privacy);
+                $updatePrivacySettings->save();
+            }
+            if($request->has('post')){
+                $updatePostSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',4)->first();
+                if(!$updatePostSettings){
+                    $updatePostSettings=new CustomerAccountSettings();
+                    $updatePostSettings->user_id=$user->id;
+                    $updatePostSettings->settings_name=4;
+                }
+                $updatePostSettings->settings= trim($request->post);
+                $updatePostSettings->save();
+            }
+            if($request->has('status')){
+                $updateStatusSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',5)->first();
+                if(!$updateStatusSettings){
+                    $updateStatusSettings=new CustomerAccountSettings();
+                    $updateStatusSettings->user_id=$user->id;
+                    $updateStatusSettings->settings_name=5;
+                }
+                $updateStatusSettings->settings = trim($request->status);
+                $updateStatusSettings->save();
+            }
+            if($request->has('service')){
+                $updateServiceSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',6)->first();
+                if(!$updateServiceSettings){
+                    $updateServiceSettings=new CustomerAccountSettings();
+                    $updateServiceSettings->user_id=$user->id;
+                    $updateServiceSettings->settings_name=6;
+                }
+                $updateServiceSettings->settings = trim($request->service);
+                $updateServiceSettings->save();
+            }
+            if($request->has('language')){
+                $updateLanguageSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',7)->first();
+                if(!$updateLanguageSettings){
+                    $updateLanguageSettings=new CustomerAccountSettings();
+                    $updateLanguageSettings->user_id=$user->id;
+                    $updateLanguageSettings->settings_name=7;
+                }
+                $updateLanguageSettings->settings = trim($request->language);
+                $updateLanguageSettings->save();
+            }
+            if($request->has('ein_number')){
+                $updateLanguageSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',8)->first();
+                if(!$updateLanguageSettings){
+                    $updateLanguageSettings=new CustomerAccountSettings();
+                    $updateLanguageSettings->user_id=$user->id;
+                    $updateLanguageSettings->settings_name=8;
+                }
+                $updateLanguageSettings->settings = trim($request->ein_number);
+                $updateLanguageSettings->save();
+            }
+            if($request->has('w9_upload')){
+                $updateLanguageSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',9)->first();
+                if(!$updateLanguageSettings){
+                    $updateLanguageSettings=new CustomerAccountSettings();
+                    $updateLanguageSettings->user_id=$user->id;
+                    $updateLanguageSettings->settings_name=9;
+                }
+                $updateLanguageSettings->settings = trim($request->w9_upload);
+                $updateLanguageSettings->save();
+            }
+            if($request->has('partner')){
+                $updateLanguageSettings=CustomerAccountSettings::where('user_id',$user->id)->where('settings_name',10)->first();
+                if(!$updateLanguageSettings){
+                    $updateLanguageSettings=new CustomerAccountSettings();
+                    $updateLanguageSettings->user_id=$user->id;
+                    $updateLanguageSettings->settings_name=10;
+                }
+                $updateLanguageSettings->settings = trim($request->partner);
+                $updateLanguageSettings->save();
+            }
+
+            
+            return response()->json([
+                'status'   => true,
+                'response' => "Account Settings Updated!"
+            ],200); 
+       }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    /**
+     * Fetch a settings details of a provider
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function getAccountsettings(Request $request){
+        try{
+            $user=$request->user();
+            $allsettings =CustomerAccountSettings::where('user_id',$user->id)->get();
+            return response()->json([
+                'status'   => true,
+                'response' =>[
+                    'settings' => $allsettings,
+                ]
+            ],200); 
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+     /**
+     * Fetch a pest controll method of a provider
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function getPestcontrollMethod(Request $request){
+        try{
+            $user=$request->user();
+            $fetchMethods =PestControllMethodInfo::where('user_id',$user->id)->get();
+            return response()->json([
+                'status'   => true,
+                'response' =>[
+                    'pestcontrollmethods' => $fetchMethods,
+                ]
+            ],200); 
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    public function savePestcontrollMethod(Request $request){
+        try{
+            $user=$request->user();
+            if($request->method_status==0){
+                $getMethods=PestControllMethodInfo::where('user_id',$user->id)->where('method_id',$request->method_id)->delete();
+                if($getMethods){
+                    return response()->json([
+                        'status'   => true,
+                        'response' =>"Method Updated !"
+                    ],200);
+                }else{
+                    return response()->json([
+                        'status'   => false,
+                        'response' =>"Try Again!"
+                    ],400);
+                }
+            }else{
+                $getMethods=PestControllMethodInfo::where('user_id',$user->id)->where('method_id',$request->method_id)->first();
+                if(!$getMethods){
+                    $updateMethods=new PestControllMethodInfo();
+                    $updateMethods->user_id=$user->id;
+                    $updateMethods->method_id=$request->method_id;
+                    $updateMethods->ecofriendly='1';
+                    if($updateMethods->save()){
+                        return response()->json([
+                            'status'   => true,
+                            'response' =>"Method Updated !"
+                        ],200);
+                    }else{
+                        return response()->json([
+                            'status'   => false,
+                            'response' =>"Try Again!"
+                        ],400);
+                    }
+                }else{
+                    return response()->json([
+                        'status'   => false,
+                        'response' =>"Try Again!"
+                    ],400);
+                }
+            }
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    public function updatePestControllEcofriendlyStatus(Request $request){
+        try{
+            $user=$request->user();
+            $getMethods=PestControllMethodInfo::where('user_id',$user->id)->where('method_id',$request->method_id)->first();
+            if($getMethods){
+                $getMethods->ecofriendly=$request->echofriendly_status;
+                if($getMethods->save()){
+                    return response()->json([
+                        'status'   => true,
+                        'response' =>"Method Updated !"
+                    ],200);
+                }else{
+                    return response()->json([
+                        'status'   => false,
+                        'response' =>"Try Again!"
+                    ],400);
+                }
+            }else{
+                return response()->json([
+                    'status'   => false,
+                    'response' =>"First add the method then try to change ecofriendly status."
+                ],400);
+            }
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    /**
+     * Fetch a business 
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function getPestLicenceExpire(Request $request){
+        try{
+            $user=$request->user();
+            $fetchLicenseExpireDate =ExpireLicense::where('user_id',$user->id)->get();
+            return response()->json([
+                'status'   => true,
+                'response' =>[
+                    'expire_licence' => $fetchLicenseExpireDate,
+                ]
+            ],200); 
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    public function updatePestLicenceExpire(Request $request){
+        try{
+            $user=$request->user();
+            $getMethods=ExpireLicense::where('user_id',$user->id)->where('pest_type',$request->insects_id)->first();
+            if(!$getMethods){
+                $getMethods= new ExpireLicense();
+                $getMethods->user_id=$user->id;
+                $getMethods->pest_type=$request->insects_id;
+            }
+            $getMethods->expier_date=$request->expier;
+            if($getMethods->save()){
+                return response()->json([
+                    'status'   => true,
+                    'response' =>"Updated Business License Expire Date !"
+                ],200);
+            }else{
+                return response()->json([
+                    'status'   => false,
+                    'response' =>"Try Again!"
+                ],400);
+            }
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    /**
+     * Fetch a business 
+     * @param Illuminate/Http/Request $request
+     * @return json
+    */
+    public function deletePestLicenceExpire(Request $request){
+        try{
+            $user=$request->user();
+            $deleteStatePermission=ExpireLicense::where('user_id',$user->id)->where('pest_type',$request->insects_id)->delete();
+            if($deleteStatePermission){
+                return response()->json([
+                    'status'   => true,
+                    'response' =>"License expiration removed successfully!"
+                ],200);
+            }else{
+                return response()->json([
+                    'status'   => false,
+                    'response' =>"Try Again!"
+                ],400);
+            }
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+
+    public function saveStateLicence(Request $request){
+        try{
+            $user=$request->user();
+            if($request->state_status==0){
+                $deleteStatePermission=StateLicense::where('user_id',$user->id)->where('pest_type',$request->insects_id)->where('state_id',$request->stateid)->delete();
+                if($deleteStatePermission){
+                    return response()->json([
+                        'status'   => true,
+                        'response' =>"Successfully removed the state from your service area!"
+                    ],200);
+                }else{
+                    return response()->json([
+                        'status'   => false,
+                        'response' =>"Try Again!"
+                    ],400);
+                }
+            }else{
+                $statePermission=StateLicense::where('user_id',$user->id)->where('pest_type',$request->insects_id)->where('state_id',$request->stateid)->first();
+                if($statePermission){
+                    return response()->json([
+                        'status'   => true,
+                        'response' =>"This State is already in your service area!"
+                    ],200);
+                }else{
+                    $addState=new StateLicense();
+                    $addState->user_id=$user->id;
+                    $addState->pest_type=$request->insects_id;
+                    $addState->state_id=$request->stateid;
+                    if($addState->save()){
+                        return response()->json([
+                            'status'   => true,
+                            'response' =>"This State is added in your service area!"
+                        ],200);
+                    }else{
+                        return response()->json([
+                            'status'   => false,
+                            'response' =>"Try Again!"
+                        ],400);
+                    }
+                }
+            }
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+     public function getStateLicence(Request $request){
+        try{
+           $user=$request->user();
+            $data = StateLicense::select('pest_type',DB::raw("JSON_OBJECTAGG(id,state_id) as statevalues"))->with('statesinfo')->where('user_id',$user->id)->orderBy("pest_type")->groupBy('pest_type')->get();
+                return response()->json([
+                    'status'   => true,
+                    'response' =>[
+                        'serve_states' => $data
+                    ]
+                ],200); 
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    public function savePestTypeForService(Request $request){
+        try{
+            $user=$request->user();
+            $pest_main_type=ProviderPestService::where('user_id',$user->id)->where('pest_type',$request->type)->where('pest_catagory',1)->first();
+            if($pest_main_type && $request->status==0){
+                $delete_type=ProviderPestService::where('user_id',$user->id)->where('pest_type',$request->type)->where('pest_catagory',1)->delete();
+                if($delete_type){
+                    return response()->json([
+                        'status'   => true,
+                        'response' =>'This catagory is removed.'
+                    ],200);
+                }else{
+                    return response()->json([
+                        'status'   => false,
+                        'response' =>"Try Again!"
+                    ],400);
+                }
+            }else if((!$pest_main_type) && $request->status==1){
+                $newPestService=new ProviderPestService();
+                $newPestService->user_id=$user->id;
+                $newPestService->pest_type=$request->type;
+                $newPestService->pest_catagory=1;
+                if($newPestService->save()){
+                    return response()->json([
+                        'status'   => true,
+                        'response' =>'This catagory is added.'
+                    ],200);
+                }else{
+                    return response()->json([
+                        'status'   => false,
+                        'response' =>"Try Again!"
+                    ],400);
+                }
+            }else{
+                return response()->json([
+                    'status'   => false,
+                    'response' =>"Try Again!"
+                ],400);
+            }
+            
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    public function getPestTypeForService(Request $request){
+        try{
+            $user=$request->user();
+            $pest_main_type=ProviderPestService::where('user_id',$user->id)->where('pest_catagory',1)->get();
+            return response()->json([
+                'status'   => true,
+                'response' =>[
+                    'pest_main_catagory' => $pest_main_type,
+                ]
+            ],200); 
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    public function saveKeyWord(Request $request){
+        try{
+            $user=$request->user();
+            $newPestService=new PestKeyword();
+            $newPestService->user_id=$user->id;
+            $newPestService->pest_type=$request->pest_type;
+            $newPestService->keyword=$request->keyword;
+            if($newPestService->save()){
+                return response()->json([
+                    'status'   => true,
+                    'response' =>'This catagory is added.'
+                ],200);
+            }else{
+                return response()->json([
+                    'status'   => false,
+                    'response' =>"Try Again!"
+                ],400);
+            }
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    public function deleteKeyWord(Request $request){
+         try{
+            $user=$request->user();
+            $deleteKeyWord=ProviderPestService::where('id',$keyword_id)->where('user_id',$user->id)->delete();
+            return response()->json([
+                'status'   => true,
+                'response' =>'Key Word Deleted'
+            ],200); 
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    public function getKeyWord(Request $request){
+        try{
+            $user=$request->user();
+            $data = PestKeyword::select('pest_type',DB::raw("JSON_OBJECTAGG(id, keyword) as keyvalue"))->where('user_id',$user->id)->orderBy("pest_type")->groupBy('pest_type')->get();
+                return response()->json([
+                    'status'   => true,
+                    'response' =>[
+                        'set_keywords' => $data
+                    ]
+                ],200); 
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
+    public function saveSubcatagoryPestForService(Request $request){
+        try{
+            $user=$request->user();
+            $pest_sub_type=ProviderPestService::where('user_id',$user->id)->where('pest_type',$request->type)->where('pest_catagory',2)->first();
+            if($pest_sub_type && $request->status==0){
+                $delete_type=ProviderPestService::where('user_id',$user->id)->where('pest_type',$request->type)->where('pest_catagory',1)->delete();
+                if($delete_type){
+                    return response()->json([
+                        'status'   => true,
+                        'response' =>'This catagory is removed.'
+                    ],200);
+                }else{
+                    return response()->json([
+                        'status'   => false,
+                        'response' =>"Try Again!"
+                    ],400);
+                }
+            }else if((!$pest_sub_type) && $request->status==1){
+                $newPestService=new ProviderPestService();
+                $newPestService->user_id=$user->id;
+                $newPestService->pest_type=$request->type;
+                $newPestService->pest_catagory=2;
+                if($newPestService->save()){
+                    return response()->json([
+                        'status'   => true,
+                        'response' =>'This catagory is added.'
+                    ],200);
+                }else{
+                    return response()->json([
+                        'status'   => false,
+                        'response' =>"Try Again!"
+                    ],400);
+                }
+            }else{
+                return response()->json([
+                    'status'   => false,
+                    'response' =>"Try Again!"
+                ],400);
+            }
+            
+        }catch(\Exception $e){
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage()
+            ],$e->getCode()); 
+        }
+    }
+
 }

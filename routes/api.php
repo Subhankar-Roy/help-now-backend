@@ -32,7 +32,9 @@ Route::get('/fetch/ethnicity', 'CommondataController@getEthnicityvalues');
 Route::get('/fetch/languages', 'CommondataController@getLanguagevalues');
 Route::get('/fetch/relationship', 'CommondataController@getRelationshipvalues');
 Route::get('/fetch/states', 'CommondataController@getStatevalues');
+Route::get('/fetch/main/pestcatagory', 'CommondataController@getMainPestcatagory');
 Route::get('/verify-email/user/{verification_id}', 'UserController@getVerifyEmail');
 Route::post('/check-user-status', 'UserController@postCheckUserStatus');
+Route::get('/fetch/pestcontrollmethods', 'CommondataController@getPestcontrollmethods');
 
 

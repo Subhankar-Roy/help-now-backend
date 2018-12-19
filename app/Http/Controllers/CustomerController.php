@@ -121,6 +121,17 @@ class CustomerController extends Controller
     public function savePersonalInfo(Request $request){
         try{
             $user=$request->user();
+            $validator = Validator::make($request->all(), [
+                'phone'     => 'numeric|min:10',
+                'zip'              => 'numeric|min:5'
+            ]);
+
+            if ($validator->fails()){
+                return response()->json([
+                    'status' => false,
+                    'response' => $validator->errors()
+                ],400);
+            }
             DB::beginTransaction();
             $savePersonalInfo= PersonalInformation::where('user_id',$user->id)->first();
             if(!$savePersonalInfo){
@@ -128,31 +139,31 @@ class CustomerController extends Controller
                 $savePersonalInfo->user_id        = $user->id;
                 $savePersonalInfo->custom_user_id = unique_id_generator('C', 'USA');
             }
-            if($request->has('first_name')){
+            if($request->has('first_name') && (trim($request->first_name)!="")){
                 $savePersonalInfo->first_name = trim($request->first_name);
             }
             if($request->has('middle_name')){
-               $savePersonalInfo->middle_name = trim($request->middle_name);
+               $savePersonalInfo->middle_name = (trim($request->last_name)!="")?trim($request->middle_name):null;
             }
-            if($request->has('last_name')){
+            if($request->has('last_name') && (trim($request->last_name)!="")){
                $savePersonalInfo->last_name = trim($request->last_name);
             }
-            if($request->has('phone')){
+            if($request->has('phone')&& (trim($request->phone)!="")){
                $savePersonalInfo->phone = trim($request->phone);
             }
-            if($request->has('street')){
-               $savePersonalInfo->street = trim($request->street);
+            if($request->has('street')&& (trim($request->street)!="")){
+               $savePersonalInfo->street = (trim($request->street)!="")?trim($request->street):null;
             }
             if($request->has('po')){
-               $savePersonalInfo->po = trim($request->po);
+               $savePersonalInfo->po = (trim($request->po)!="")?trim($request->po):null;
             }
-            if($request->has('city')){
+            if($request->has('city')&& (trim($request->city)!="")){
                $savePersonalInfo->city = trim($request->city);
             }
             if($request->has('state')){
-               $savePersonalInfo->state = trim($request->state);
+               $savePersonalInfo->state = (trim($request->state)!="")?trim($request->state):null;
             }
-            if($request->has('zip')){
+            if($request->has('zip')&& (trim($request->zip)!="")){
                $savePersonalInfo->zip = trim($request->zip);
             }
             if($savePersonalInfo->save()){
@@ -213,25 +224,25 @@ class CustomerController extends Controller
             DB::beginTransaction();
             $saveDemographics = DemographicsInformation::updateOrCreate(['user_id' => $user->id]);
             if($request->has('language')){
-                $saveDemographics->language = trim($request->language);
+                $saveDemographics->language = (trim($request->language)!="")?trim($request->language):null;
             }
             if($request->has('gender')){
-                $saveDemographics->gender = trim($request->gender);
+                $saveDemographics->gender = (trim($request->gender)!="")?trim($request->gender):null;
             }
             if($request->has('birthdate')){
-                $saveDemographics->birthdate = trim($request->birthdate);
+                $saveDemographics->birthdate = (trim($request->birthdate)!="")?trim($request->birthdate):null;
             }
             if($request->has('ethnicity')){
-                $saveDemographics->ethnicity = trim($request->ethnicity);
+                $saveDemographics->ethnicity = (trim($request->ethnicity)!="")?trim($request->ethnicity):null;
             }
             if($request->has('relationship')){
-                $saveDemographics->relationship = trim($request->relationship);
+                $saveDemographics->relationship = (trim($request->relationship)!="")?trim($request->relationship):null;
             }
             if($request->has('education')){
-                $saveDemographics->education = trim($request->education);
+                $saveDemographics->education = (trim($request->education)!="")?trim($request->education):null;
             }
             if($request->has('occupation')){
-                $saveDemographics->occupation = trim($request->occupation);
+                $saveDemographics->occupation = (trim($request->occupation)!="")?trim($request->occupation):null;
             }
             if($saveDemographics->save()){
                 DB::commit();
@@ -301,31 +312,31 @@ class CustomerController extends Controller
             DB::beginTransaction();
             $saveProfessionalinfo=ProfessionalInformation::updateOrCreate(['user_id' => $user->id]);
             if($request->has('employer_name')){
-                $saveProfessionalinfo->employer_name = trim($request->employer_name);
+                $saveProfessionalinfo->employer_name = (trim($request->employer_name)!="")?trim($request->employer_name):null;
             }
             if($request->has('designation')){
-                 $saveProfessionalinfo->designation = trim($request->designation);
+                 $saveProfessionalinfo->designation = (trim($request->designation)!="")?trim($request->designation):null;
             }
-            if($request->has('phone')){
-                $saveProfessionalinfo->phone = trim($request->phone);
+            if($request->has('phone')&& (trim($request->phone)!="")){
+                $saveProfessionalinfo->phone = (trim($request->phone)!="")?trim($request->phone):null;
             }
-            if($request->has('email')){
-                $saveProfessionalinfo->email = trim($request->email);
+            if($request->has('email')&& (trim($request->email)!="")){
+                $saveProfessionalinfo->email = (trim($request->email)!="")?trim($request->email):null;
             }
-            if($request->has('street')){
-                $saveProfessionalinfo->street = trim($request->street);
+            if($request->has('street')&& (trim($request->street)!="")){
+                $saveProfessionalinfo->street = (trim($request->street)!="")?trim($request->street):null;
             }
             if($request->has('po')){
-                $saveProfessionalinfo->po = trim($request->po);
+                $saveProfessionalinfo->po =  (trim($request->po)!="")?trim($request->po):null;
             }
-            if($request->has('city')){
-                $saveProfessionalinfo->city = trim($request->city);
+            if($request->has('city')&& (trim($request->city)!="")){
+                $saveProfessionalinfo->city =(trim($request->city)!="")?trim($request->city):null;
             }
             if($request->has('state')){
-                $saveProfessionalinfo->state = trim($request->state);
+                $saveProfessionalinfo->state = (trim($request->state)!="")?trim($request->state):null;
             }
-            if($request->has('zip')){
-                $saveProfessionalinfo->zip = trim($request->zip);
+            if($request->has('zip')&& (trim($request->zip)!="")){
+                $saveProfessionalinfo->zip = (trim($request->zip)!="")?trim($request->zip):null;
             }
             if($saveProfessionalinfo->save()){
                 DB::commit();
@@ -390,7 +401,7 @@ class CustomerController extends Controller
     */
     public function savePaymentinfo(Request $request){
         try{
-            /*$validator = Validator::make($request->all(), [
+           /* $validator = Validator::make($request->all(), [
                 'street'       => 'required',
                 'city'         => 'required',
                 'zip'          => 'required|numeric'
@@ -406,40 +417,40 @@ class CustomerController extends Controller
             DB::beginTransaction();
             $savePaymentinfo=CustomerPaymentSettings::updateOrCreate(['user_id' => $user->id]);
             if($request->has('card_type')){
-                $savePaymentinfo->card_type = trim($request->card_type);
+                $savePaymentinfo->card_type = (trim($request->card_type)!="")?trim($request->card_type):null;
             }
             if($request->has('account_number')){
-                $savePaymentinfo->account_number = trim($request->account_number);
+                $savePaymentinfo->account_number =(trim($request->account_number)!="")?trim($request->account_number):null;
             }
             if($request->has('expiration')){
-                $savePaymentinfo->expiration = trim($request->expiration);
+                $savePaymentinfo->expiration = (trim($request->expiration)!="")?trim($request->expiration):null;
             }
             if($request->has('name_on_card')){
-                $savePaymentinfo->name_on_card = trim($request->name_on_card);
+                $savePaymentinfo->name_on_card = (trim($request->name_on_card)!="")?trim($request->name_on_card):null;
             }
             if($request->has('security_code')){
-                $savePaymentinfo->security_code = trim($request->security_code);
+                $savePaymentinfo->security_code = (trim($request->security_code)!="")?trim($request->security_code):null;
             }
-            if($request->has('street')){
+            if($request->has('street')&& (trim($request->street)!="")){
                 $savePaymentinfo->street = trim($request->street);
             }
             if($request->has('po')){
-                $savePaymentinfo->po = trim($request->po);
+                $savePaymentinfo->po = (trim($request->po)!="")?trim($request->po):null;
             }
-            if($request->has('city')){
+            if($request->has('city')&& (trim($request->city)!="")){
                 $savePaymentinfo->city = trim($request->city);
             }
             if($request->has('state')){
-                $savePaymentinfo->state = trim($request->state);
+                $savePaymentinfo->state = (trim($request->state)!="")?trim($request->state):null;
             }
-            if($request->has('zip')){
+            if($request->has('zip')&& (trim($request->zip)!="")){
                 $savePaymentinfo->zip = trim($request->zip);
             }
             if($request->has('paypal_account')){
-                $savePaymentinfo->paypal_account = trim($request->paypal_account);
+                $savePaymentinfo->paypal_account = (trim($request->paypal_account)!="")?trim($request->paypal_account):null;
             }
             if($request->has('venmo_account')){
-                $savePaymentinfo->venmo_account = trim($request->venmo_account);
+                $savePaymentinfo->venmo_account = (trim($request->venmo_account)!="")?trim($request->venmo_account):null;
             }
             if($savePaymentinfo->save()){
                 DB::commit();

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCustomerAccountSettingsTable extends Migration
+class CreatePestControllMethodInfosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,13 @@ class CreateCustomerAccountSettingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('helpnow_customer_account_settings', function (Blueprint $table) {
+        Schema::create('helpnow_pest_controll_method_infos', function (Blueprint $table) {
             $table->increments('id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedInteger('user_id');
-            $table->integer('settings_name')->comment('1->Notification, 2->Special Offers, 3->Privacy, 4->Posts, 5->Status, 6->Service, 7->Language,8->EIN Number, 9->W9, 10->Partner type');
-            $table->string('settings')->comment('T->Text, E->Email, S->Social, P->Phone, 0->Inactive, 1->Active');
+            $table->foreign('method_id')->references('id')->on('helpnow_pest_controll_methods');
+            $table->unsignedInteger('method_id');
+            $table->enum('ecofriendly',[0,1])->comment('0->No, 1-> Yes')->default('1');
             $table->timestamps();
         });
     }
@@ -30,6 +31,6 @@ class CreateCustomerAccountSettingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('helpnow_customer_account_settings');
+        Schema::dropIfExists('helpnow_pest_controll_method_infos');
     }
 }
